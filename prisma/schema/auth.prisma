@@ -11,7 +11,6 @@ model User {
     emailVerified Boolean @default(false)
     image         String?
 
-    password String
     role     Role    @default(STUDENT)
     isBanned Boolean @default(false)
 

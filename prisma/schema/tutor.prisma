@@ -21,9 +21,9 @@ model TutorProfile {
 
 model Availability {
   id        String @id @default(uuid())
-  day       String // e.g. "Monday"
-  startTime String // e.g. "10:00"
-  endTime   String // e.g. "12:00"
+  day       String 
+  startTime String 
+  endTime   String 
 
   tutorId String
   tutor   TutorProfile @relation(fields: [tutorId], references: [id])
