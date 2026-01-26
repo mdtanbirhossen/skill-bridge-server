@@ -1,0 +1,26 @@
+enum BookingStatus {
+    CONFIRMED
+    COMPLETED
+    CANCELLED
+}
+
+model Booking {
+    id        String        @id @default(uuid())
+    status    BookingStatus @default(CONFIRMED)
+    date      DateTime
+    startTime String
+    endTime   String
+
+    studentId String
+    tutorId   String
+
+    student User @relation("StudentBookings", fields: [studentId], references: [id])
+    tutor   User @relation("TutorBookings", fields: [tutorId], references: [id])
+
+    review Review?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("bookings")
+}
