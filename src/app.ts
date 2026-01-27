@@ -7,6 +7,7 @@ import { CategoryRoutes } from "./modules/category/category.routes";
 import { BookingRoutes } from "./modules/booking/booking.routes";
 import { ReviewRoutes } from "./modules/review/review.routes";
 import { AvailabilityRoutes } from "./modules/availability/availability.routes";
+import { UserRoutes } from "./modules/user/user.routes";
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/api/tutor", TutorProfileRoutes);
 app.use("/api/booking", BookingRoutes);
 app.use("/api/review", ReviewRoutes);
 app.use("/api/availability", AvailabilityRoutes);
+app.use("/api/user", UserRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");

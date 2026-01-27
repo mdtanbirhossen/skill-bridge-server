@@ -95,8 +95,48 @@ const getBookingDetails = async (req: Request, res: Response) => {
   }
 };
 
+const updateBooking = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required",
+      });
+    }
+
+    const updatedBooking = await BookingService.updateBooking(
+      id as string,
+      {
+        id: user.id,
+        role: user.role,
+      },
+      { status }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Booking updated successfully",
+      data: updatedBooking,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export const BookingController = {
   createBooking,
   getBookings,
   getBookingDetails,
+  updateBooking
 };

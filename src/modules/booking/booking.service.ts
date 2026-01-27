@@ -119,8 +119,66 @@ const getBookingById = async (bookingId: string) => {
   });
 };
 
+const updateBooking = async (
+  bookingId: string,
+  user: {
+    id: string;
+    role: string;
+  },
+  data: {
+    status: BookingStatus;
+  }
+) => {
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+  });
+
+  if (!booking) {
+    throw new Error("Booking not found");
+  }
+
+  // 🔒 Prevent changes on finished bookings
+  if (
+    booking.status === BookingStatus.CANCELLED ||
+    booking.status === BookingStatus.COMPLETED
+  ) {
+    throw new Error("This booking can no longer be updated");
+  }
+
+  // 🔐 Permission rules
+  if (user.role === "STUDENT") {
+    if (booking.studentId !== user.id) {
+      throw new Error("Forbidden");
+    }
+
+    if (data.status !== BookingStatus.CANCELLED) {
+      throw new Error("Student can only cancel booking");
+    }
+  }
+
+  if (user.role === "TUTOR") {
+    if (booking.tutorId !== user.id) {
+      throw new Error("Forbidden");
+    }
+
+    if (data.status !== BookingStatus.COMPLETED) {
+      throw new Error("Tutor can only mark booking as completed");
+    }
+  }
+
+  // ADMIN can do anything
+
+  return prisma.booking.update({
+    where: { id: bookingId },
+    data: {
+      status: data.status,
+    },
+  });
+};
+
 export const BookingService = {
   createBooking,
   getUserBookings,
   getBookingById,
+  updateBooking
 };
