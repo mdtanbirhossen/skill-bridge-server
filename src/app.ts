@@ -1,7 +1,8 @@
 import express from "express";
-import { toNodeHandler } from "better-auth/node";
-import { auth } from "./lib/auth";
 import cors from "cors";
+import { TutorProfileRoutes } from "./modules/tutor/tutor.routes";
+import { AuthRoutes } from "./modules/auth/auth.routes";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -9,13 +10,14 @@ app.use(
   cors({
     origin: process.env.APP_URL,
     credentials: true,
-  })
+  }),
 );
 app.use(express.json());
+app.use(cookieParser());
 
-// better auth routes
-app.all("/api/auth/{*any}", toNodeHandler(auth));
 
+app.use("/api/auth", AuthRoutes);
+app.use("/api/tutor", TutorProfileRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
