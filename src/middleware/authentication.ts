@@ -62,7 +62,6 @@ export const auth = (...roles: Role[]) => {
           message: "Unauthorized: Invalid token structure",
         });
       }
-      console.log(payload)
 
       req.user = {
         id: payload.id,
