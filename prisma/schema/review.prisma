@@ -14,5 +14,5 @@ model Review {
 
   createdAt DateTime @default(now())
 
-  @@map("reviews")
+  @@map("review")
 }

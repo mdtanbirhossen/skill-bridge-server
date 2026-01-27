@@ -5,6 +5,7 @@ model TutorProfile {
   hourlyRate Float
   experience Int
   rating     Float  @default(0)
+  tags       String[]
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id])
@@ -15,7 +16,7 @@ model TutorProfile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("tutor_profiles")
+  @@map("tutor_profile")
 }
 
 

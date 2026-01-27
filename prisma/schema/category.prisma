@@ -6,5 +6,5 @@ model Category {
 
   createdAt DateTime @default(now())
 
-  @@map("categories")
+  @@map("category")
 }
