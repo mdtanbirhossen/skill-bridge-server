@@ -8,4 +8,6 @@ const router = express.Router();
 router.post("/", auth(Role.TUTOR), TutorProfileController.createTutorProfile);
 router.get("/", TutorProfileController.getAllTutorProfile);
 router.get("/:id", TutorProfileController.getTutorProfileById);
+router.put("/profile", auth(Role.TUTOR), TutorProfileController.upsertTutorProfile);
+
 export const TutorProfileRoutes = router;

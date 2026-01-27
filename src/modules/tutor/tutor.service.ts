@@ -65,8 +65,7 @@ const getAllTutorProfiles = async ({
   if (category && category.length > 0) {
     andConditions.push({
       category: {
-        name: { contains: category,
-            mode: "insensitive", },
+        name: { contains: category, mode: "insensitive" },
       },
     });
   }
@@ -118,8 +117,33 @@ const getTutorProfileById = async (id: string) => {
   return result;
 };
 
+const upsertTutorProfile = async (
+  userId: string,
+  data: Omit<TutorProfile, "id" | "userId" | "createdAt" | "updatedAt">,
+) => {
+  const result = await prisma.tutorProfile.upsert({
+    where: {
+      userId,
+    },
+    create: {
+      ...data,
+      userId,
+    },
+    update: {
+      ...data,
+    },
+    include: {
+      user: true,
+      category: true,
+      availability: true,
+    },
+  });
+
+  return result;
+};
 export const TutorProfileService = {
   createTutorProfile,
   getAllTutorProfiles,
   getTutorProfileById,
+  upsertTutorProfile
 };

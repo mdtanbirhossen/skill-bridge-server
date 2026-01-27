@@ -53,8 +53,37 @@ const getTutorProfileById = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+
+const upsertTutorProfile = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const result = await TutorProfileService.upsertTutorProfile(
+      user.id,
+      req.body
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Tutor profile saved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message || "Failed to save tutor profile",
+    });
+  }
+};
+
 export const TutorProfileController = {
   createTutorProfile,
   getAllTutorProfile,
   getTutorProfileById,
+  upsertTutorProfile
 };
