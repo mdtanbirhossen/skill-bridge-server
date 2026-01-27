@@ -4,7 +4,7 @@ model TutorProfile {
   hourlyRate Float
   experience Int
   rating     Float    @default(0)
-  tags       String[]
+  subjects       String[]
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id])
