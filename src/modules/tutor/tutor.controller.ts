@@ -19,9 +19,7 @@ const createTutorProfile = async (req: Request, res: Response) => {
 const getAllTutorProfile = async (req: Request, res: Response) => {
   try {
     const { search } = req.query;
-    const categories = req.query.categories
-      ? (req.query.categories as string).split(",")
-      : [];
+    const category = req.query.category as string
 
     const { page, limit, sortBy, sortOrder, skip } = paginationSortingHelper(
       req.query as any
@@ -29,7 +27,7 @@ const getAllTutorProfile = async (req: Request, res: Response) => {
 
     const result = await TutorProfileService.getAllTutorProfiles({
       search: search as string | undefined,
-      categories,
+      category,
       page,
       limit,
       sortBy,

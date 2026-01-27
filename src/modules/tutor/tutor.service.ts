@@ -17,7 +17,7 @@ const createTutorProfile = async (
 
 const getAllTutorProfiles = async ({
   search,
-  categories,
+  category,
   page,
   limit,
   skip,
@@ -25,7 +25,7 @@ const getAllTutorProfiles = async ({
   sortOrder,
 }: {
   search: string | undefined;
-  categories: string[] | [];
+  category: string;
   page: number;
   limit: number;
   skip: number;
@@ -45,6 +45,11 @@ const getAllTutorProfiles = async ({
           },
         },
         {
+          subjects: {
+            has: search,
+          },
+        },
+        {
           user: {
             name: {
               contains: search,
@@ -57,12 +62,11 @@ const getAllTutorProfiles = async ({
   }
 
   // Filter by categories
-  if (categories && categories.length > 0) {
+  if (category && category.length > 0) {
     andConditions.push({
-      categories: {
-        some: {
-          name: { in: categories },
-        },
+      category: {
+        name: { contains: category,
+            mode: "insensitive", },
       },
     });
   }
