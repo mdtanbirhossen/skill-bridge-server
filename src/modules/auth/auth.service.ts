@@ -49,7 +49,7 @@ const createUser = async (data: {
       role: user.role,
     },
     JWT_SECRET,
-    { expiresIn: JWT_EXPIRES_IN }
+    { expiresIn: JWT_EXPIRES_IN },
   );
 
   return {
@@ -58,13 +58,8 @@ const createUser = async (data: {
   };
 };
 
-
-
 // sign in user
-const signInUser = async (data: {
-  email: string;
-  password: string;
-}) => {
+const signInUser = async (data: { email: string; password: string }) => {
   const user = await prisma.user.findUnique({
     where: { email: data.email },
   });
@@ -73,10 +68,7 @@ const signInUser = async (data: {
     throw new Error("Invalid email or password");
   }
 
-  const isPasswordMatch = await bcrypt.compare(
-    data.password,
-    user.password
-  );
+  const isPasswordMatch = await bcrypt.compare(data.password, user.password);
 
   if (!isPasswordMatch) {
     throw new Error("Invalid email or password");
@@ -90,7 +82,7 @@ const signInUser = async (data: {
       role: user.role,
     },
     JWT_SECRET,
-    { expiresIn: JWT_EXPIRES_IN }
+    { expiresIn: JWT_EXPIRES_IN },
   );
 
   return {
@@ -104,8 +96,29 @@ const signInUser = async (data: {
   };
 };
 
+const getUserById = async (id: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      phone: true,
+      image: true,
+      isBanned: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user;
+};
 
 export const AuthService = {
   createUser,
   signInUser,
+  getUserById,
 };
