@@ -1,34 +1,22 @@
-
 model TutorProfile {
-  id         String @id @default(uuid())
+  id         String   @id @default(uuid())
   bio        String
   hourlyRate Float
   experience Int
-  rating     Float  @default(0)
+  rating     Float    @default(0)
   tags       String[]
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id])
 
-  categories   Category[]     @relation("TutorCategories")
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
   availability Availability[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("tutor_profile")
-}
-
-
-model Availability {
-  id        String @id @default(uuid())
-  day       String 
-  startTime String 
-  endTime   String 
-
-  tutorId String
-  tutor   TutorProfile @relation(fields: [tutorId], references: [id])
-
-  @@map("availability")
 }
 
