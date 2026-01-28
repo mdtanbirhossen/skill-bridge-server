@@ -68,6 +68,10 @@ const signInUser = async (data: { email: string; password: string }) => {
     throw new Error("Invalid email or password");
   }
 
+  if (user.isBanned) {
+    throw new Error("Can't Login! You are Banned by Admin!");
+  }
+
   const isPasswordMatch = await bcrypt.compare(data.password, user.password);
 
   if (!isPasswordMatch) {
