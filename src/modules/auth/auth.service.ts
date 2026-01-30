@@ -6,14 +6,20 @@ import { Role } from "../../../generated/prisma/enums";
 const JWT_SECRET = process.env.JWT_SECRET as string;
 const JWT_EXPIRES_IN = "7d";
 
-// create user
-const createUser = async (data: {
+type CreateUserInput = {
   name: string;
   email: string;
   password: string;
   role?: Role;
-}) => {
-  // check user already exists
+  phone?: string;
+  image?: string;
+  emailVerified?: boolean;
+  isBanned?: boolean;
+};
+// create user
+
+const createUser = async (data: CreateUserInput) => {
+  // check if user already exists
   const existingUser = await prisma.user.findUnique({
     where: { email: data.email },
   });
@@ -25,18 +31,28 @@ const createUser = async (data: {
   // hash password
   const hashedPassword = await bcrypt.hash(data.password, 12);
 
+  // create user
   const user = await prisma.user.create({
     data: {
       name: data.name,
       email: data.email,
       password: hashedPassword,
       role: data.role ?? Role.STUDENT,
+      phone: data.phone ?? null,
+      image: data.image ?? null,
+      emailVerified: data.emailVerified ?? false,
+      isBanned: data.isBanned ?? false,
     },
     select: {
       id: true,
       name: true,
       email: true,
       role: true,
+      phone: true,
+      image: true,
+      emailVerified: true,
+      isBanned: true,
+      createdAt: true,
     },
   });
 
@@ -52,10 +68,7 @@ const createUser = async (data: {
     { expiresIn: JWT_EXPIRES_IN },
   );
 
-  return {
-    user,
-    token,
-  };
+  return { user, token };
 };
 
 // sign in user

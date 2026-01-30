@@ -12,12 +12,7 @@ const register = async (req: Request, res: Response) => {
       });
     }
 
-    const result = await AuthService.createUser({
-      name,
-      email,
-      password,
-      role,
-    });
+    const result = await AuthService.createUser(req.body);
 
     res.cookie("token", result.token, {
       httpOnly: true,
