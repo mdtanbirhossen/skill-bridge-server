@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 
+// Read environment variables
+const FRONTEND_URL = process.env.APP_URL || "http://localhost:3000";
+const NODE_ENV = process.env.NODE_ENV || "development";
+const COOKIE_SECURE = NODE_ENV === "production"; // only secure in production
+
 const register = async (req: Request, res: Response) => {
   try {
     const { name, email, password, role } = req.body;
@@ -16,9 +21,10 @@ const register = async (req: Request, res: Response) => {
 
     res.cookie("token", result.token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: COOKIE_SECURE,
+      sameSite: COOKIE_SECURE ? "none" : "lax", // "none" needed for cross-site in prod
       maxAge: 7 * 24 * 60 * 60 * 1000,
+      domain: COOKIE_SECURE ? new URL(FRONTEND_URL).hostname : undefined, // only set domain in prod
     });
 
     return res.status(201).json({
@@ -45,17 +51,16 @@ const login = async (req: Request, res: Response) => {
       });
     }
 
-    const result = await AuthService.signInUser({
-      email,
-      password,
-    });
+    const result = await AuthService.signInUser({ email, password });
 
     res.cookie("token", result.token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: COOKIE_SECURE,
+      sameSite: COOKIE_SECURE ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
+      domain: COOKIE_SECURE ? new URL(FRONTEND_URL).hostname : undefined,
     });
+
     return res.status(200).json({
       success: true,
       message: "Login successful",
@@ -71,7 +76,7 @@ const login = async (req: Request, res: Response) => {
 
 const getCurrentUser = async (req: Request, res: Response) => {
   try {
-    const user = req.user; // user is coming from token
+    const user = req.user;
 
     if (!user) {
       return res.status(401).json({
@@ -97,5 +102,5 @@ const getCurrentUser = async (req: Request, res: Response) => {
 export const AuthController = {
   register,
   login,
-  getCurrentUser
+  getCurrentUser,
 };
