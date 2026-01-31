@@ -63,6 +63,7 @@ const createUser = async (data: CreateUserInput) => {
       email: user.email,
       name: user.name,
       role: user.role,
+      isBanned: user.isBanned,
     },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN },
@@ -97,20 +98,13 @@ const signInUser = async (data: { email: string; password: string }) => {
       email: user.email,
       name: user.name,
       role: user.role,
+      isBanned: user.isBanned,
     },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN },
   );
 
-  return {
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    },
-    token,
-  };
+  return { user, token };
 };
 
 const getUserById = async (id: string) => {

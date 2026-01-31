@@ -10,6 +10,7 @@ declare global {
         email: string;
         name: string;
         role: Role;
+        isBanned: boolean;
       };
     }
   }
@@ -20,13 +21,13 @@ interface TokenPayload extends jwt.JwtPayload {
   email: string;
   name: string;
   role: Role;
+  isBanned: boolean;
 }
 
 export const auth = (...roles: Role[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       let token = req.cookies?.token as string | undefined;
-
 
       if (!token) {
         const authHeader = req.headers.authorization;
@@ -42,10 +43,7 @@ export const auth = (...roles: Role[]) => {
         });
       }
 
-      const decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET as string
-      );
+      const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
 
       if (typeof decoded === "string") {
         return res.status(401).json({
@@ -68,7 +66,9 @@ export const auth = (...roles: Role[]) => {
         email: payload.email,
         name: payload.name,
         role: payload.role,
+        isBanned: payload.isBanned,
       };
+      console.log(req.user)
 
       // Role guard
       if (roles.length && !roles.includes(req.user.role)) {
