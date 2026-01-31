@@ -141,9 +141,32 @@ const upsertTutorProfile = async (
 
   return result;
 };
+
+// tutor.service.ts
+const deleteTutorProfile = async (userId: string) => {
+  const existingProfile = await prisma.tutorProfile.findUnique({
+    where: {
+      userId,
+    },
+  });
+
+  if (!existingProfile) {
+    throw new Error("Tutor profile not found");
+  }
+
+  const result = await prisma.tutorProfile.delete({
+    where: {
+      userId,
+    },
+  });
+
+  return result;
+};
+
 export const TutorProfileService = {
   createTutorProfile,
   getAllTutorProfiles,
   getTutorProfileById,
-  upsertTutorProfile
+  upsertTutorProfile,
+  deleteTutorProfile
 };
