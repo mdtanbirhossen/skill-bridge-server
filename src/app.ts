@@ -13,7 +13,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: [ process.env.APP_URL || "http://localhost:3000" , "http://localhost:3000", "https://skill-bridge-client-one.vercel.app"],
+    origin: [ process.env.APP_URL || "http://localhost:3000" , "http://localhost:3000", "https://skill-bridge-client-psi.vercel.app"],
     credentials: true,
   }),
 );
