@@ -60,7 +60,7 @@ const login = async (req: Request, res: Response) => {
     res.cookie("token", result.token, {
       httpOnly: true,
       secure: COOKIE_SECURE,
-      sameSite: COOKIE_SECURE ? "none" : "lax",
+      sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
       domain: COOKIE_SECURE ? new URL(FRONTEND_URL).hostname : undefined,
     });
