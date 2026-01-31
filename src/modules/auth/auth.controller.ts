@@ -18,7 +18,9 @@ const register = async (req: Request, res: Response) => {
     }
 
     const result = await AuthService.createUser(req.body);
-
+    console.log("node env:", NODE_ENV);
+    console.log("frontend url:", FRONTEND_URL);
+    console.log("cookie secure:", COOKIE_SECURE);
     res.cookie("token", result.token, {
       httpOnly: true,
       secure: COOKIE_SECURE,
@@ -52,7 +54,9 @@ const login = async (req: Request, res: Response) => {
     }
 
     const result = await AuthService.signInUser({ email, password });
-
+    console.log("node env:", NODE_ENV);
+    console.log("frontend url:", FRONTEND_URL);
+    console.log("cookie secure:", COOKIE_SECURE);
     res.cookie("token", result.token, {
       httpOnly: true,
       secure: COOKIE_SECURE,
