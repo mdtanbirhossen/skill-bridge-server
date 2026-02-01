@@ -149,7 +149,7 @@ var config = {
   "clientVersion": "7.2.0",
   "engineVersion": "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3",
   "activeProvider": "postgresql",
-  "inlineSchema": 'enum WeekDay {\n  MONDAY\n  TUESDAY\n  WEDNESDAY\n  THURSDAY\n  FRIDAY\n  SATURDAY\n  SUNDAY\n}\n\nmodel Availability {\n  id        String  @id @default(uuid())\n  day       WeekDay\n  startTime String\n  endTime   String\n\n  tutorId String\n  tutor   TutorProfile @relation(fields: [tutorId], references: [id])\n\n  @@map("availability")\n}\n\nenum BookingStatus {\n  CONFIRMED\n  COMPLETED\n  CANCELLED\n}\n\nmodel Booking {\n  id        String        @id @default(uuid())\n  status    BookingStatus @default(CONFIRMED)\n  date      DateTime\n  startTime String\n  endTime   String\n\n  studentId String\n  tutorId   String\n\n  student User         @relation("StudentBookings", fields: [studentId], references: [id])\n  tutor   TutorProfile @relation("TutorBookings", fields: [tutorId], references: [id])\n\n  review Review?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map("booking")\n}\n\nmodel Category {\n  id   String @id @default(uuid())\n  name String @unique\n\n  tutors TutorProfile[]\n\n  createdAt DateTime @default(now())\n\n  @@map("category")\n}\n\nmodel Review {\n  id      String  @id @default(uuid())\n  rating  Int // 1\u20135\n  comment String?\n\n  studentId String\n  tutorId   String\n  bookingId String @unique\n\n  student User         @relation("StudentReviews", fields: [studentId], references: [id])\n  tutor   TutorProfile @relation("TutorReviews", fields: [tutorId], references: [id])\n  booking Booking      @relation(fields: [bookingId], references: [id])\n\n  createdAt DateTime @default(now())\n\n  @@map("review")\n}\n\n// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = "prisma-client"\n  output   = "../../generated/prisma"\n}\n\ndatasource db {\n  provider = "postgresql"\n}\n\nmodel TutorProfile {\n  id         String   @id @default(uuid())\n  bio        String\n  hourlyRate Float\n  experience Int\n  rating     Float    @default(0)\n  subjects   String[]\n\n  userId String @unique\n  user   User   @relation(fields: [userId], references: [id])\n\n  categoryId String\n  category   Category @relation(fields: [categoryId], references: [id])\n\n  reviews      Review[]       @relation("TutorReviews")\n  Bookings     Booking[]      @relation("TutorBookings")\n  availability Availability[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map("tutor_profile")\n}\n\nenum Role {\n  STUDENT\n  TUTOR\n  ADMIN\n}\n\nmodel User {\n  id            String  @id @default(uuid())\n  name          String\n  email         String  @unique\n  password      String\n  phone         String?\n  emailVerified Boolean @default(false)\n  image         String?\n\n  role     Role    @default(STUDENT)\n  isBanned Boolean @default(false)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  // Your custom relations\n  tutorProfile     TutorProfile?\n  studentBookings  Booking[]     @relation("StudentBookings")\n  reviewsAsStudent Review[]      @relation("StudentReviews")\n\n  @@map("user")\n}\n',
+  "inlineSchema": 'enum WeekDay {\n  MONDAY\n  TUESDAY\n  WEDNESDAY\n  THURSDAY\n  FRIDAY\n  SATURDAY\n  SUNDAY\n}\n\nmodel Availability {\n  id        String  @id @default(uuid())\n  day       WeekDay\n  startTime String\n  endTime   String\n\n  tutorId String\n  tutor   TutorProfile @relation(fields: [tutorId], references: [id])\n\n  @@map("availability")\n}\n\nenum BookingStatus {\n  CONFIRMED\n  COMPLETED\n  CANCELLED\n}\n\nmodel Booking {\n  id        String        @id @default(uuid())\n  status    BookingStatus @default(CONFIRMED)\n  date      DateTime\n  startTime String\n  endTime   String\n\n  studentId String\n  tutorId   String\n\n  student User         @relation("StudentBookings", fields: [studentId], references: [id])\n  tutor   TutorProfile @relation("TutorBookings", fields: [tutorId], references: [id])\n\n  review Review?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map("booking")\n}\n\nmodel Category {\n  id   String @id @default(uuid())\n  name String @unique\n\n  tutors TutorProfile[]\n\n  createdAt DateTime @default(now())\n\n  @@map("category")\n}\n\nmodel Review {\n  id      String  @id @default(uuid())\n  rating  Int // 1\u20135\n  comment String?\n\n  studentId String\n  tutorId   String\n  bookingId String @unique\n\n  student User         @relation("StudentReviews", fields: [studentId], references: [id])\n  tutor   TutorProfile @relation("TutorReviews", fields: [tutorId], references: [id])\n  booking Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)\n\n  createdAt DateTime @default(now())\n\n  @@map("review")\n}\n\n// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = "prisma-client"\n  output   = "../../generated/prisma"\n}\n\ndatasource db {\n  provider = "postgresql"\n}\n\nmodel TutorProfile {\n  id         String   @id @default(uuid())\n  bio        String\n  hourlyRate Float\n  experience Int\n  rating     Float    @default(0)\n  subjects   String[]\n\n  userId String @unique\n  user   User   @relation(fields: [userId], references: [id])\n\n  categoryId String\n  category   Category @relation(fields: [categoryId], references: [id])\n\n  reviews      Review[]       @relation("TutorReviews")\n  Bookings     Booking[]      @relation("TutorBookings")\n  availability Availability[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map("tutor_profile")\n}\n\nenum Role {\n  STUDENT\n  TUTOR\n  ADMIN\n}\n\nmodel User {\n  id            String  @id @default(uuid())\n  name          String\n  email         String  @unique\n  password      String\n  phone         String?\n  emailVerified Boolean @default(false)\n  image         String?\n\n  role     Role    @default(STUDENT)\n  isBanned Boolean @default(false)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  // Your custom relations\n  tutorProfile     TutorProfile?\n  studentBookings  Booking[]     @relation("StudentBookings")\n  reviewsAsStudent Review[]      @relation("StudentReviews")\n\n  @@map("user")\n}\n',
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -1007,14 +1007,24 @@ var getUserBookings = async (userId, role) => {
     return await prisma.booking.findMany({
       where: { studentId: userId },
       include: {
-        tutor: true
+        tutor: {
+          include: {
+            user: {
+              select: { name: true, image: true }
+            }
+          }
+        }
       },
       orderBy: { date: "desc" }
     });
   }
   if (role === "TUTOR") {
     return await prisma.booking.findMany({
-      where: { tutorId: userId },
+      where: {
+        tutor: {
+          userId
+        }
+      },
       include: {
         student: true
       },
@@ -1024,7 +1034,13 @@ var getUserBookings = async (userId, role) => {
   return await prisma.booking.findMany({
     include: {
       student: true,
-      tutor: true
+      tutor: {
+        include: {
+          user: {
+            select: { name: true, image: true }
+          }
+        }
+      }
     },
     orderBy: { date: "desc" }
   });
@@ -1034,8 +1050,11 @@ var getBookingById = async (bookingId) => {
     where: { id: bookingId },
     include: {
       student: true,
-      tutor: true,
-      review: true
+      tutor: {
+        include: {
+          user: true
+        }
+      }
     }
   });
 };
@@ -1139,7 +1158,7 @@ var getBookingDetails = async (req, res) => {
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
-    if (user.role !== "ADMIN" && booking.studentId !== user.id && booking.tutorId !== user.id) {
+    if (user.role !== "ADMIN" && booking.studentId !== user.id && booking.tutor.userId !== user.id) {
       return res.status(403).json({ message: "Forbidden" });
     }
     return res.status(200).json({

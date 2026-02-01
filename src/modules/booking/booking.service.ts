@@ -36,9 +36,8 @@ const createBooking = async (data: {
   // check tutor available or not
   const availability = await prisma.availability.findFirst({
     where: {
-      
-        tutorId:data.tutorId,
-      
+      tutorId: data.tutorId,
+
       day,
       startTime: {
         lte: data.startTime,
@@ -48,7 +47,6 @@ const createBooking = async (data: {
       },
     },
   });
-
 
   if (!availability) {
     throw new Error("Tutor is not available at this time");
@@ -75,7 +73,6 @@ const createBooking = async (data: {
     },
   });
 
-
   if (conflict) {
     throw new Error("This time slot is already booked");
   }
@@ -100,7 +97,13 @@ const getUserBookings = async (userId: string, role: string) => {
     return await prisma.booking.findMany({
       where: { studentId: userId },
       include: {
-        tutor: true,
+        tutor: {
+          include:{
+            user:{
+              select:{ name: true, image:true }
+            }
+          }
+        },
       },
       orderBy: { date: "desc" },
     });
@@ -108,9 +111,14 @@ const getUserBookings = async (userId: string, role: string) => {
 
   if (role === "TUTOR") {
     return await prisma.booking.findMany({
-      where: { tutorId: userId },
+      where: {
+        tutor: {
+          userId: userId,
+        },
+      },
       include: {
         student: true,
+        
       },
       orderBy: { date: "desc" },
     });
@@ -120,7 +128,13 @@ const getUserBookings = async (userId: string, role: string) => {
   return await prisma.booking.findMany({
     include: {
       student: true,
-      tutor: true,
+      tutor: {
+        include:{
+          user:{
+            select:{ name: true, image:true }
+          }
+        }
+      },
     },
     orderBy: { date: "desc" },
   });
@@ -131,8 +145,11 @@ const getBookingById = async (bookingId: string) => {
     where: { id: bookingId },
     include: {
       student: true,
-      tutor: true,
-      review: true,
+      tutor: {
+        include:{
+          user:true
+        }
+      },
     },
   });
 };
@@ -155,7 +172,7 @@ const updateBooking = async (
     throw new Error("Booking not found");
   }
 
-  // 🔒 Prevent changes on finished bookings
+  //  Prevent changes on finished bookings
   if (
     booking.status === BookingStatus.CANCELLED ||
     booking.status === BookingStatus.COMPLETED
@@ -163,7 +180,7 @@ const updateBooking = async (
     throw new Error("This booking can no longer be updated");
   }
 
-  // 🔐 Permission rules
+  //  Permission rules
   if (user.role === "STUDENT") {
     if (booking.studentId !== user.id) {
       throw new Error("Forbidden");

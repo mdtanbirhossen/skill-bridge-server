@@ -79,7 +79,7 @@ const getBookingDetails = async (req: Request, res: Response) => {
     if (
       user.role !== "ADMIN" &&
       booking.studentId !== user.id &&
-      booking.tutorId !== user.id
+      booking.tutor.userId !== user.id
     ) {
       return res.status(403).json({ message: "Forbidden" });
     }
