@@ -1,8 +1,16 @@
-
+enum WeekDay {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
 
 model Availability {
   id        String @id @default(uuid())
-  day       String
+  day       WeekDay
   startTime String
   endTime   String
 

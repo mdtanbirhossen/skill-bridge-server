@@ -1,9 +1,10 @@
+import { WeekDay } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 
 const createAvailability = async (
   tutorId: string,
   data: {
-    day: string;
+    day: WeekDay;
     startTime: string;
     endTime: string;
   },
@@ -43,7 +44,7 @@ const updateAvailability = async (
   availabilityId: string,
   tutorId: string,
   data: {
-    day?: string;
+    day?: WeekDay;
     startTime?: string;
     endTime?: string;
   },

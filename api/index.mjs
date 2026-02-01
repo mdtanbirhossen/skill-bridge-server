@@ -585,7 +585,7 @@ var Role = {
 var router = express.Router();
 router.post("/", auth(Role.TUTOR), TutorProfileController.createTutorProfile);
 router.get("/", TutorProfileController.getAllTutorProfile);
-router.get("/:id", TutorProfileController.getTutorProfileById);
+router.get("/:id", auth(Role.TUTOR, Role.ADMIN, Role.STUDENT), TutorProfileController.getTutorProfileById);
 router.put("/profile", auth(Role.TUTOR), TutorProfileController.upsertTutorProfile);
 router.delete(
   "/",
@@ -708,6 +708,13 @@ var register = async (req, res) => {
       });
     }
     const result = await AuthService.createUser(req.body);
+    res.cookie("token", result.token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      // "none" needed for cross-site in prod
+      maxAge: 7 * 24 * 60 * 60 * 1e3
+    });
     return res.status(201).json({
       success: true,
       message: "User registered successfully",
@@ -730,6 +737,12 @@ var login = async (req, res) => {
       });
     }
     const result = await AuthService.signInUser({ email, password });
+    res.cookie("token", result.token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1e3
+    });
     return res.status(200).json({
       success: true,
       message: "Login successful",
@@ -1665,7 +1678,7 @@ var UserRoutes = router7;
 var app = express4();
 app.use(
   cors({
-    origin: [process.env.APP_URL || "http://localhost:3000", "http://localhost:3000", "https://skill-bridge-client-one.vercel.app"],
+    origin: [process.env.APP_URL || "http://localhost:3000", "http://localhost:3000", "https://skill-bridge-client-psi.vercel.app"],
     credentials: true
   })
 );
