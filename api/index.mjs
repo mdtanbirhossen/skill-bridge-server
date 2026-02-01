@@ -1420,10 +1420,10 @@ var ReviewRoutes = router5;
 import { Router as Router3 } from "express";
 
 // src/modules/availability/availability.service.ts
-var createAvailability = async (tutorId, data) => {
+var createAvailability = async (data) => {
   const exists = await prisma.availability.findFirst({
     where: {
-      tutorId,
+      tutorId: data.tutorId,
       day: data.day,
       startTime: data.startTime,
       endTime: data.endTime
@@ -1434,7 +1434,7 @@ var createAvailability = async (tutorId, data) => {
   }
   return prisma.availability.create({
     data: {
-      tutorId,
+      tutorId: data.tutorId,
       day: data.day,
       startTime: data.startTime,
       endTime: data.endTime
@@ -1447,11 +1447,11 @@ var getAvailabilityByTutor = async (tutorId) => {
     orderBy: { day: "asc" }
   });
 };
-var updateAvailability = async (availabilityId, tutorId, data) => {
+var updateAvailability = async (availabilityId, data) => {
   const availability = await prisma.availability.findFirst({
     where: {
       id: availabilityId,
-      tutorId
+      tutorId: data.tutorId
     }
   });
   if (!availability) {
@@ -1486,18 +1486,24 @@ var AvailabilityService = {
 // src/modules/availability/availability.controller.ts
 var createAvailability2 = async (req, res) => {
   try {
-    const tutorId = req.user.id;
-    const { day, startTime, endTime } = req.body;
-    if (!day || !startTime || !endTime) {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized"
+      });
+    }
+    const { day, startTime, endTime, tutorId } = req.body;
+    if (!day || !startTime || !endTime || !tutorId) {
       return res.status(400).json({
         success: false,
         message: "Day, startTime and endTime are required"
       });
     }
-    const result = await AvailabilityService.createAvailability(tutorId, {
+    const result = await AvailabilityService.createAvailability({
       day,
       startTime,
-      endTime
+      endTime,
+      tutorId
     });
     res.status(201).json({
       success: true,
@@ -1528,11 +1534,9 @@ var getMyAvailability = async (req, res) => {
 };
 var updateAvailability2 = async (req, res) => {
   try {
-    const tutorId = req.user.id;
     const { id } = req.params;
     const result = await AvailabilityService.updateAvailability(
       id,
-      tutorId,
       req.body
     );
     res.status(200).json({
