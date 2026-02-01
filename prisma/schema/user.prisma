@@ -22,8 +22,6 @@ model User {
     // Your custom relations
     tutorProfile    TutorProfile?
     studentBookings Booking[]     @relation("StudentBookings")
-    tutorBookings   Booking[]     @relation("TutorBookings")
-
     reviewsAsStudent Review[] @relation("StudentReviews")
 
     @@map("user")

@@ -15,6 +15,7 @@ const createBooking = async (req: Request, res: Response) => {
     }
 
     const { tutorId, date, startTime, endTime } = req.body;
+    console.log(req.body)
 
     const booking = await BookingService.createBooking({
       studentId: user.id,

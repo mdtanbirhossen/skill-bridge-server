@@ -14,8 +14,8 @@ model Booking {
     studentId String
     tutorId   String
 
-    student User @relation("StudentBookings", fields: [studentId], references: [id])
-    tutor   User @relation("TutorBookings", fields: [tutorId], references: [id])
+    student User         @relation("StudentBookings", fields: [studentId], references: [id])
+    tutor   TutorProfile @relation("TutorBookings", fields: [tutorId], references: [id])
 
     review Review?
 

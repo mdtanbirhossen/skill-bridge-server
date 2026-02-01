@@ -12,8 +12,8 @@ model TutorProfile {
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
 
-  reviews Review[] @relation("TutorReviews")
-
+  reviews      Review[]       @relation("TutorReviews")
+  Bookings     Booking[]      @relation("TutorBookings")
   availability Availability[]
 
   createdAt DateTime @default(now())

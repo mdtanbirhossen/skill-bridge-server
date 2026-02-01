@@ -149,14 +149,14 @@ var config = {
   "clientVersion": "7.2.0",
   "engineVersion": "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3",
   "activeProvider": "postgresql",
-  "inlineSchema": 'enum WeekDay {\n  MONDAY\n  TUESDAY\n  WEDNESDAY\n  THURSDAY\n  FRIDAY\n  SATURDAY\n  SUNDAY\n}\n\nmodel Availability {\n  id        String  @id @default(uuid())\n  day       WeekDay\n  startTime String\n  endTime   String\n\n  tutorId String\n  tutor   TutorProfile @relation(fields: [tutorId], references: [id])\n\n  @@map("availability")\n}\n\nenum BookingStatus {\n  CONFIRMED\n  COMPLETED\n  CANCELLED\n}\n\nmodel Booking {\n  id        String        @id @default(uuid())\n  status    BookingStatus @default(CONFIRMED)\n  date      DateTime\n  startTime String\n  endTime   String\n\n  studentId String\n  tutorId   String\n\n  student User @relation("StudentBookings", fields: [studentId], references: [id])\n  tutor   User @relation("TutorBookings", fields: [tutorId], references: [id])\n\n  review Review?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map("booking")\n}\n\nmodel Category {\n  id   String @id @default(uuid())\n  name String @unique\n\n  tutors TutorProfile[]\n\n  createdAt DateTime @default(now())\n\n  @@map("category")\n}\n\nmodel Review {\n  id      String  @id @default(uuid())\n  rating  Int // 1\u20135\n  comment String?\n\n  studentId String\n  tutorId   String\n  bookingId String @unique\n\n  student User         @relation("StudentReviews", fields: [studentId], references: [id])\n  tutor   TutorProfile @relation("TutorReviews", fields: [tutorId], references: [id])\n  booking Booking      @relation(fields: [bookingId], references: [id])\n\n  createdAt DateTime @default(now())\n\n  @@map("review")\n}\n\n// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = "prisma-client"\n  output   = "../../generated/prisma"\n}\n\ndatasource db {\n  provider = "postgresql"\n}\n\nmodel TutorProfile {\n  id         String   @id @default(uuid())\n  bio        String\n  hourlyRate Float\n  experience Int\n  rating     Float    @default(0)\n  subjects   String[]\n\n  userId String @unique\n  user   User   @relation(fields: [userId], references: [id])\n\n  categoryId String\n  category   Category @relation(fields: [categoryId], references: [id])\n\n  reviews Review[] @relation("TutorReviews")\n\n  availability Availability[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map("tutor_profile")\n}\n\nenum Role {\n  STUDENT\n  TUTOR\n  ADMIN\n}\n\nmodel User {\n  id            String  @id @default(uuid())\n  name          String\n  email         String  @unique\n  password      String\n  phone         String?\n  emailVerified Boolean @default(false)\n  image         String?\n\n  role     Role    @default(STUDENT)\n  isBanned Boolean @default(false)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  // Your custom relations\n  tutorProfile    TutorProfile?\n  studentBookings Booking[]     @relation("StudentBookings")\n  tutorBookings   Booking[]     @relation("TutorBookings")\n\n  reviewsAsStudent Review[] @relation("StudentReviews")\n\n  @@map("user")\n}\n',
+  "inlineSchema": 'enum WeekDay {\n  MONDAY\n  TUESDAY\n  WEDNESDAY\n  THURSDAY\n  FRIDAY\n  SATURDAY\n  SUNDAY\n}\n\nmodel Availability {\n  id        String  @id @default(uuid())\n  day       WeekDay\n  startTime String\n  endTime   String\n\n  tutorId String\n  tutor   TutorProfile @relation(fields: [tutorId], references: [id])\n\n  @@map("availability")\n}\n\nenum BookingStatus {\n  CONFIRMED\n  COMPLETED\n  CANCELLED\n}\n\nmodel Booking {\n  id        String        @id @default(uuid())\n  status    BookingStatus @default(CONFIRMED)\n  date      DateTime\n  startTime String\n  endTime   String\n\n  studentId String\n  tutorId   String\n\n  student User         @relation("StudentBookings", fields: [studentId], references: [id])\n  tutor   TutorProfile @relation("TutorBookings", fields: [tutorId], references: [id])\n\n  review Review?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map("booking")\n}\n\nmodel Category {\n  id   String @id @default(uuid())\n  name String @unique\n\n  tutors TutorProfile[]\n\n  createdAt DateTime @default(now())\n\n  @@map("category")\n}\n\nmodel Review {\n  id      String  @id @default(uuid())\n  rating  Int // 1\u20135\n  comment String?\n\n  studentId String\n  tutorId   String\n  bookingId String @unique\n\n  student User         @relation("StudentReviews", fields: [studentId], references: [id])\n  tutor   TutorProfile @relation("TutorReviews", fields: [tutorId], references: [id])\n  booking Booking      @relation(fields: [bookingId], references: [id])\n\n  createdAt DateTime @default(now())\n\n  @@map("review")\n}\n\n// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = "prisma-client"\n  output   = "../../generated/prisma"\n}\n\ndatasource db {\n  provider = "postgresql"\n}\n\nmodel TutorProfile {\n  id         String   @id @default(uuid())\n  bio        String\n  hourlyRate Float\n  experience Int\n  rating     Float    @default(0)\n  subjects   String[]\n\n  userId String @unique\n  user   User   @relation(fields: [userId], references: [id])\n\n  categoryId String\n  category   Category @relation(fields: [categoryId], references: [id])\n\n  reviews      Review[]       @relation("TutorReviews")\n  Bookings     Booking[]      @relation("TutorBookings")\n  availability Availability[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map("tutor_profile")\n}\n\nenum Role {\n  STUDENT\n  TUTOR\n  ADMIN\n}\n\nmodel User {\n  id            String  @id @default(uuid())\n  name          String\n  email         String  @unique\n  password      String\n  phone         String?\n  emailVerified Boolean @default(false)\n  image         String?\n\n  role     Role    @default(STUDENT)\n  isBanned Boolean @default(false)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  // Your custom relations\n  tutorProfile     TutorProfile?\n  studentBookings  Booking[]     @relation("StudentBookings")\n  reviewsAsStudent Review[]      @relation("StudentReviews")\n\n  @@map("user")\n}\n',
   "runtimeDataModel": {
     "models": {},
     "enums": {},
     "types": {}
   }
 };
-config.runtimeDataModel = JSON.parse('{"models":{"Availability":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"day","kind":"enum","type":"WeekDay"},{"name":"startTime","kind":"scalar","type":"String"},{"name":"endTime","kind":"scalar","type":"String"},{"name":"tutorId","kind":"scalar","type":"String"},{"name":"tutor","kind":"object","type":"TutorProfile","relationName":"AvailabilityToTutorProfile"}],"dbName":"availability"},"Booking":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"status","kind":"enum","type":"BookingStatus"},{"name":"date","kind":"scalar","type":"DateTime"},{"name":"startTime","kind":"scalar","type":"String"},{"name":"endTime","kind":"scalar","type":"String"},{"name":"studentId","kind":"scalar","type":"String"},{"name":"tutorId","kind":"scalar","type":"String"},{"name":"student","kind":"object","type":"User","relationName":"StudentBookings"},{"name":"tutor","kind":"object","type":"User","relationName":"TutorBookings"},{"name":"review","kind":"object","type":"Review","relationName":"BookingToReview"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"booking"},"Category":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"tutors","kind":"object","type":"TutorProfile","relationName":"CategoryToTutorProfile"},{"name":"createdAt","kind":"scalar","type":"DateTime"}],"dbName":"category"},"Review":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"rating","kind":"scalar","type":"Int"},{"name":"comment","kind":"scalar","type":"String"},{"name":"studentId","kind":"scalar","type":"String"},{"name":"tutorId","kind":"scalar","type":"String"},{"name":"bookingId","kind":"scalar","type":"String"},{"name":"student","kind":"object","type":"User","relationName":"StudentReviews"},{"name":"tutor","kind":"object","type":"TutorProfile","relationName":"TutorReviews"},{"name":"booking","kind":"object","type":"Booking","relationName":"BookingToReview"},{"name":"createdAt","kind":"scalar","type":"DateTime"}],"dbName":"review"},"TutorProfile":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"bio","kind":"scalar","type":"String"},{"name":"hourlyRate","kind":"scalar","type":"Float"},{"name":"experience","kind":"scalar","type":"Int"},{"name":"rating","kind":"scalar","type":"Float"},{"name":"subjects","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"TutorProfileToUser"},{"name":"categoryId","kind":"scalar","type":"String"},{"name":"category","kind":"object","type":"Category","relationName":"CategoryToTutorProfile"},{"name":"reviews","kind":"object","type":"Review","relationName":"TutorReviews"},{"name":"availability","kind":"object","type":"Availability","relationName":"AvailabilityToTutorProfile"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"tutor_profile"},"User":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"email","kind":"scalar","type":"String"},{"name":"password","kind":"scalar","type":"String"},{"name":"phone","kind":"scalar","type":"String"},{"name":"emailVerified","kind":"scalar","type":"Boolean"},{"name":"image","kind":"scalar","type":"String"},{"name":"role","kind":"enum","type":"Role"},{"name":"isBanned","kind":"scalar","type":"Boolean"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"tutorProfile","kind":"object","type":"TutorProfile","relationName":"TutorProfileToUser"},{"name":"studentBookings","kind":"object","type":"Booking","relationName":"StudentBookings"},{"name":"tutorBookings","kind":"object","type":"Booking","relationName":"TutorBookings"},{"name":"reviewsAsStudent","kind":"object","type":"Review","relationName":"StudentReviews"}],"dbName":"user"}},"enums":{},"types":{}}');
+config.runtimeDataModel = JSON.parse('{"models":{"Availability":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"day","kind":"enum","type":"WeekDay"},{"name":"startTime","kind":"scalar","type":"String"},{"name":"endTime","kind":"scalar","type":"String"},{"name":"tutorId","kind":"scalar","type":"String"},{"name":"tutor","kind":"object","type":"TutorProfile","relationName":"AvailabilityToTutorProfile"}],"dbName":"availability"},"Booking":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"status","kind":"enum","type":"BookingStatus"},{"name":"date","kind":"scalar","type":"DateTime"},{"name":"startTime","kind":"scalar","type":"String"},{"name":"endTime","kind":"scalar","type":"String"},{"name":"studentId","kind":"scalar","type":"String"},{"name":"tutorId","kind":"scalar","type":"String"},{"name":"student","kind":"object","type":"User","relationName":"StudentBookings"},{"name":"tutor","kind":"object","type":"TutorProfile","relationName":"TutorBookings"},{"name":"review","kind":"object","type":"Review","relationName":"BookingToReview"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"booking"},"Category":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"tutors","kind":"object","type":"TutorProfile","relationName":"CategoryToTutorProfile"},{"name":"createdAt","kind":"scalar","type":"DateTime"}],"dbName":"category"},"Review":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"rating","kind":"scalar","type":"Int"},{"name":"comment","kind":"scalar","type":"String"},{"name":"studentId","kind":"scalar","type":"String"},{"name":"tutorId","kind":"scalar","type":"String"},{"name":"bookingId","kind":"scalar","type":"String"},{"name":"student","kind":"object","type":"User","relationName":"StudentReviews"},{"name":"tutor","kind":"object","type":"TutorProfile","relationName":"TutorReviews"},{"name":"booking","kind":"object","type":"Booking","relationName":"BookingToReview"},{"name":"createdAt","kind":"scalar","type":"DateTime"}],"dbName":"review"},"TutorProfile":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"bio","kind":"scalar","type":"String"},{"name":"hourlyRate","kind":"scalar","type":"Float"},{"name":"experience","kind":"scalar","type":"Int"},{"name":"rating","kind":"scalar","type":"Float"},{"name":"subjects","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"TutorProfileToUser"},{"name":"categoryId","kind":"scalar","type":"String"},{"name":"category","kind":"object","type":"Category","relationName":"CategoryToTutorProfile"},{"name":"reviews","kind":"object","type":"Review","relationName":"TutorReviews"},{"name":"Bookings","kind":"object","type":"Booking","relationName":"TutorBookings"},{"name":"availability","kind":"object","type":"Availability","relationName":"AvailabilityToTutorProfile"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"tutor_profile"},"User":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"email","kind":"scalar","type":"String"},{"name":"password","kind":"scalar","type":"String"},{"name":"phone","kind":"scalar","type":"String"},{"name":"emailVerified","kind":"scalar","type":"Boolean"},{"name":"image","kind":"scalar","type":"String"},{"name":"role","kind":"enum","type":"Role"},{"name":"isBanned","kind":"scalar","type":"Boolean"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"tutorProfile","kind":"object","type":"TutorProfile","relationName":"TutorProfileToUser"},{"name":"studentBookings","kind":"object","type":"Booking","relationName":"StudentBookings"},{"name":"reviewsAsStudent","kind":"object","type":"Review","relationName":"StudentReviews"}],"dbName":"user"}},"enums":{},"types":{}}');
 async function decodeBase64AsWasm(wasmBase64) {
   const { Buffer: Buffer2 } = await import("buffer");
   const wasmArray = Buffer2.from(wasmBase64, "base64");
@@ -570,6 +570,15 @@ var TutorProfileController = {
 };
 
 // generated/prisma/enums.ts
+var WeekDay = {
+  MONDAY: "MONDAY",
+  TUESDAY: "TUESDAY",
+  WEDNESDAY: "WEDNESDAY",
+  THURSDAY: "THURSDAY",
+  FRIDAY: "FRIDAY",
+  SATURDAY: "SATURDAY",
+  SUNDAY: "SUNDAY"
+};
 var BookingStatus = {
   CONFIRMED: "CONFIRMED",
   COMPLETED: "COMPLETED",
@@ -708,13 +717,6 @@ var register = async (req, res) => {
       });
     }
     const result = await AuthService.createUser(req.body);
-    res.cookie("token", result.token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      // "none" needed for cross-site in prod
-      maxAge: 7 * 24 * 60 * 60 * 1e3
-    });
     return res.status(201).json({
       success: true,
       message: "User registered successfully",
@@ -737,12 +739,6 @@ var login = async (req, res) => {
       });
     }
     const result = await AuthService.signInUser({ email, password });
-    res.cookie("token", result.token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1e3
-    });
     return res.status(200).json({
       success: true,
       message: "Login successful",
@@ -937,17 +933,29 @@ var CategoryRoutes = router3;
 import { Router } from "express";
 
 // src/modules/booking/booking.service.ts
+var WEEKDAY_MAP = {
+  MONDAY: WeekDay.MONDAY,
+  TUESDAY: WeekDay.TUESDAY,
+  WEDNESDAY: WeekDay.WEDNESDAY,
+  THURSDAY: WeekDay.THURSDAY,
+  FRIDAY: WeekDay.FRIDAY,
+  SATURDAY: WeekDay.SATURDAY,
+  SUNDAY: WeekDay.SUNDAY
+};
 var createBooking = async (data) => {
   const bookingDate = new Date(data.date);
   if (bookingDate < /* @__PURE__ */ new Date()) {
     throw new Error("Cannot book past dates");
   }
-  const day = bookingDate.toLocaleDateString("en-US", { weekday: "long" }).toUpperCase();
+  const weekdayString = bookingDate.toLocaleDateString("en-US", { weekday: "long" }).toUpperCase();
+  const day = WEEKDAY_MAP[weekdayString];
+  if (!day) {
+    throw new Error("Invalid booking day");
+  }
+  console.log(day);
   const availability = await prisma.availability.findFirst({
     where: {
-      tutor: {
-        userId: data.tutorId
-      },
+      tutorId: data.tutorId,
       day,
       startTime: {
         lte: data.startTime
@@ -1082,6 +1090,7 @@ var createBooking2 = async (req, res) => {
       return res.status(403).json({ message: "Forbidden" });
     }
     const { tutorId, date, startTime, endTime } = req.body;
+    console.log(req.body);
     const booking = await BookingService.createBooking({
       studentId: user.id,
       tutorId,

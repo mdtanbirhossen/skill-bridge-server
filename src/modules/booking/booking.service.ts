@@ -1,6 +1,15 @@
-import { BookingStatus } from "../../../generated/prisma/enums";
+import { BookingStatus, WeekDay } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 
+const WEEKDAY_MAP: Record<string, WeekDay> = {
+  MONDAY: WeekDay.MONDAY,
+  TUESDAY: WeekDay.TUESDAY,
+  WEDNESDAY: WeekDay.WEDNESDAY,
+  THURSDAY: WeekDay.THURSDAY,
+  FRIDAY: WeekDay.FRIDAY,
+  SATURDAY: WeekDay.SATURDAY,
+  SUNDAY: WeekDay.SUNDAY,
+};
 const createBooking = async (data: {
   date: string;
   startTime: string;
@@ -13,16 +22,23 @@ const createBooking = async (data: {
     throw new Error("Cannot book past dates");
   }
 
-  const day = bookingDate
+  const weekdayString = bookingDate
     .toLocaleDateString("en-US", { weekday: "long" })
     .toUpperCase();
 
+  const day = WEEKDAY_MAP[weekdayString];
+
+  if (!day) {
+    throw new Error("Invalid booking day");
+  }
+
+  console.log(day);
   // check tutor available or not
   const availability = await prisma.availability.findFirst({
     where: {
-      tutor: {
-        userId: data.tutorId,
-      },
+      
+        tutorId:data.tutorId,
+      
       day,
       startTime: {
         lte: data.startTime,
@@ -32,6 +48,7 @@ const createBooking = async (data: {
       },
     },
   });
+
 
   if (!availability) {
     throw new Error("Tutor is not available at this time");
@@ -57,6 +74,7 @@ const createBooking = async (data: {
       ],
     },
   });
+
 
   if (conflict) {
     throw new Error("This time slot is already booked");
@@ -127,7 +145,7 @@ const updateBooking = async (
   },
   data: {
     status: BookingStatus;
-  }
+  },
 ) => {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
@@ -180,5 +198,5 @@ export const BookingService = {
   createBooking,
   getUserBookings,
   getBookingById,
-  updateBooking
+  updateBooking,
 };
