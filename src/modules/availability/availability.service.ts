@@ -1,18 +1,16 @@
 import { WeekDay } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 
-const createAvailability = async (
-  tutorId: string,
-  data: {
-    day: WeekDay;
-    startTime: string;
-    endTime: string;
-  },
-) => {
+const createAvailability = async (data: {
+  day: WeekDay;
+  startTime: string;
+  endTime: string;
+  tutorId: string;
+}) => {
   // prevent duplicate slots
   const exists = await prisma.availability.findFirst({
     where: {
-      tutorId,
+      tutorId: data.tutorId,
       day: data.day,
       startTime: data.startTime,
       endTime: data.endTime,
@@ -25,7 +23,7 @@ const createAvailability = async (
 
   return prisma.availability.create({
     data: {
-      tutorId,
+      tutorId: data.tutorId,
       day: data.day,
       startTime: data.startTime,
       endTime: data.endTime,
@@ -42,8 +40,8 @@ const getAvailabilityByTutor = async (tutorId: string) => {
 
 const updateAvailability = async (
   availabilityId: string,
-  tutorId: string,
   data: {
+    tutorId: string,
     day?: WeekDay;
     startTime?: string;
     endTime?: string;
@@ -52,7 +50,7 @@ const updateAvailability = async (
   const availability = await prisma.availability.findFirst({
     where: {
       id: availabilityId,
-      tutorId,
+      tutorId: data.tutorId,
     },
   });
 

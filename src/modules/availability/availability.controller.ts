@@ -3,20 +3,26 @@ import { AvailabilityService } from "./availability.service";
 
 const createAvailability = async (req: Request, res: Response) => {
   try {
-    const tutorId = req.user!.id;
-    const { day, startTime, endTime } = req.body;
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+    const { day, startTime, endTime ,tutorId} = req.body;
 
-    if (!day || !startTime || !endTime) {
+    if (!day || !startTime || !endTime || !tutorId) {
       return res.status(400).json({
         success: false,
         message: "Day, startTime and endTime are required",
       });
     }
 
-    const result = await AvailabilityService.createAvailability(tutorId, {
+    const result = await AvailabilityService.createAvailability( {
       day,
       startTime,
       endTime,
+      tutorId
     });
 
     res.status(201).json({
@@ -52,12 +58,10 @@ const getMyAvailability = async (req: Request, res: Response) => {
 
 const updateAvailability = async (req: Request, res: Response) => {
   try {
-    const tutorId = req.user!.id;
     const { id } = req.params;
 
     const result = await AvailabilityService.updateAvailability(
       id as string,
-      tutorId,
       req.body,
     );
 
