@@ -4,13 +4,15 @@ model TutorProfile {
   hourlyRate Float
   experience Int
   rating     Float    @default(0)
-  subjects       String[]
+  subjects   String[]
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id])
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
+
+  reviews Review[] @relation("TutorReviews")
 
   availability Availability[]
 
@@ -19,4 +21,3 @@ model TutorProfile {
 
   @@map("tutor_profile")
 }
-

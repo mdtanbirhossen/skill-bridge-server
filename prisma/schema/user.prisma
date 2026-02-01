@@ -24,9 +24,7 @@ model User {
     studentBookings Booking[]     @relation("StudentBookings")
     tutorBookings   Booking[]     @relation("TutorBookings")
 
-    // ⭐ Add both review relations
     reviewsAsStudent Review[] @relation("StudentReviews")
-    reviewsAsTutor   Review[] @relation("TutorReviews")
 
     @@map("user")
 }
