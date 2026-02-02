@@ -98,12 +98,13 @@ const getUserBookings = async (userId: string, role: string) => {
       where: { studentId: userId },
       include: {
         tutor: {
-          include:{
-            user:{
-              select:{ name: true, image:true }
-            }
-          }
+          include: {
+            user: {
+              select: { name: true, image: true },
+            },
+          },
         },
+        review: true,
       },
       orderBy: { date: "desc" },
     });
@@ -118,7 +119,7 @@ const getUserBookings = async (userId: string, role: string) => {
       },
       include: {
         student: true,
-        
+        review:true
       },
       orderBy: { date: "desc" },
     });
@@ -129,12 +130,13 @@ const getUserBookings = async (userId: string, role: string) => {
     include: {
       student: true,
       tutor: {
-        include:{
-          user:{
-            select:{ name: true, image:true }
-          }
-        }
+        include: {
+          user: {
+            select: { name: true, image: true },
+          },
+        },
       },
+      review:true
     },
     orderBy: { date: "desc" },
   });
@@ -146,9 +148,9 @@ const getBookingById = async (bookingId: string) => {
     include: {
       student: true,
       tutor: {
-        include:{
-          user:true
-        }
+        include: {
+          user: true,
+        },
       },
     },
   });
@@ -166,6 +168,9 @@ const updateBooking = async (
 ) => {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
+    include: {
+      tutor: true,
+    },
   });
 
   if (!booking) {
@@ -192,7 +197,7 @@ const updateBooking = async (
   }
 
   if (user.role === "TUTOR") {
-    if (booking.tutorId !== user.id) {
+    if (booking.tutor.userId !== user.id) {
       throw new Error("Forbidden");
     }
 

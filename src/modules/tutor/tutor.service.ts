@@ -112,6 +112,7 @@ const getTutorProfileById = async (id: string) => {
       user: true,
       category: true,
       availability: true,
+      reviews: true,
     },
   });
   return result;
@@ -168,5 +169,5 @@ export const TutorProfileService = {
   getAllTutorProfiles,
   getTutorProfileById,
   upsertTutorProfile,
-  deleteTutorProfile
+  deleteTutorProfile,
 };

@@ -424,7 +424,8 @@ var getTutorProfileById = async (id) => {
     include: {
       user: true,
       category: true,
-      availability: true
+      availability: true,
+      reviews: true
     }
   });
   return result;
@@ -1013,7 +1014,8 @@ var getUserBookings = async (userId, role) => {
               select: { name: true, image: true }
             }
           }
-        }
+        },
+        review: true
       },
       orderBy: { date: "desc" }
     });
@@ -1026,7 +1028,8 @@ var getUserBookings = async (userId, role) => {
         }
       },
       include: {
-        student: true
+        student: true,
+        review: true
       },
       orderBy: { date: "desc" }
     });
@@ -1040,7 +1043,8 @@ var getUserBookings = async (userId, role) => {
             select: { name: true, image: true }
           }
         }
-      }
+      },
+      review: true
     },
     orderBy: { date: "desc" }
   });
@@ -1060,7 +1064,10 @@ var getBookingById = async (bookingId) => {
 };
 var updateBooking = async (bookingId, user, data) => {
   const booking = await prisma.booking.findUnique({
-    where: { id: bookingId }
+    where: { id: bookingId },
+    include: {
+      tutor: true
+    }
   });
   if (!booking) {
     throw new Error("Booking not found");
@@ -1077,7 +1084,7 @@ var updateBooking = async (bookingId, user, data) => {
     }
   }
   if (user.role === "TUTOR") {
-    if (booking.tutorId !== user.id) {
+    if (booking.tutor.userId !== user.id) {
       throw new Error("Forbidden");
     }
     if (data.status !== BookingStatus.COMPLETED) {

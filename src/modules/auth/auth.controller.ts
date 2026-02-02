@@ -18,7 +18,6 @@ const register = async (req: Request, res: Response) => {
     //   secure: false,
     //   sameSite:  "lax", // "none" needed for cross-site in prod
     //   maxAge: 7 * 24 * 60 * 60 * 1000,
-    //   domain: '.vercel.app'
     // });
 
     return res.status(201).json({
@@ -48,10 +47,9 @@ const login = async (req: Request, res: Response) => {
     const result = await AuthService.signInUser({ email, password });
     // res.cookie("token", result.token, {
     //   httpOnly: true,
-    //   secure: COOKIE_SECURE,
-    //   sameSite: COOKIE_SECURE ? "none" : "lax",
+    //   secure: false,
+    //   sameSite: "lax",
     //   maxAge: 7 * 24 * 60 * 60 * 1000,
-    //   domain: '.vercel.app'
     // });
 
     return res.status(200).json({
