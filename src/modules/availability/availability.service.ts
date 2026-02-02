@@ -5,12 +5,23 @@ const createAvailability = async (data: {
   day: WeekDay;
   startTime: string;
   endTime: string;
-  tutorId: string;
+  userId: string;
 }) => {
+  const tutor = await prisma.tutorProfile.findFirst({
+    where: {
+      userId: data.userId,
+    },
+  });
+
+  if (!tutor) {
+    throw new Error(
+      "This User has no tutor profile. Please create tutor profile first",
+    );
+  }
   // prevent duplicate slots
   const exists = await prisma.availability.findFirst({
     where: {
-      tutorId: data.tutorId,
+      tutorId: tutor.id,
       day: data.day,
       startTime: data.startTime,
       endTime: data.endTime,
@@ -23,7 +34,7 @@ const createAvailability = async (data: {
 
   return prisma.availability.create({
     data: {
-      tutorId: data.tutorId,
+      tutorId: tutor.id,
       day: data.day,
       startTime: data.startTime,
       endTime: data.endTime,
@@ -33,7 +44,11 @@ const createAvailability = async (data: {
 
 const getAvailabilityByTutor = async (tutorId: string) => {
   return prisma.availability.findMany({
-    where: { tutorId },
+    where: {
+      tutor: {
+        userId: tutorId,
+      },
+    },
     orderBy: { day: "asc" },
   });
 };
@@ -41,7 +56,7 @@ const getAvailabilityByTutor = async (tutorId: string) => {
 const updateAvailability = async (
   availabilityId: string,
   data: {
-    tutorId: string,
+    tutorId: string;
     day?: WeekDay;
     startTime?: string;
     endTime?: string;

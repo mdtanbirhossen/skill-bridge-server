@@ -9,9 +9,11 @@ const createAvailability = async (req: Request, res: Response) => {
         message: "Unauthorized",
       });
     }
-    const { day, startTime, endTime ,tutorId} = req.body;
 
-    if (!day || !startTime || !endTime || !tutorId) {
+    
+    const { day, startTime, endTime } = req.body;
+
+    if (!day || !startTime || !endTime ) {
       return res.status(400).json({
         success: false,
         message: "Day, startTime and endTime are required",
@@ -22,7 +24,7 @@ const createAvailability = async (req: Request, res: Response) => {
       day,
       startTime,
       endTime,
-      tutorId
+      userId:req.user.id
     });
 
     res.status(201).json({

@@ -1469,9 +1469,19 @@ import { Router as Router3 } from "express";
 
 // src/modules/availability/availability.service.ts
 var createAvailability = async (data) => {
+  const tutor = await prisma.tutorProfile.findFirst({
+    where: {
+      userId: data.userId
+    }
+  });
+  if (!tutor) {
+    throw new Error(
+      "This User has no tutor profile. Please create tutor profile first"
+    );
+  }
   const exists = await prisma.availability.findFirst({
     where: {
-      tutorId: data.tutorId,
+      tutorId: tutor.id,
       day: data.day,
       startTime: data.startTime,
       endTime: data.endTime
@@ -1482,7 +1492,7 @@ var createAvailability = async (data) => {
   }
   return prisma.availability.create({
     data: {
-      tutorId: data.tutorId,
+      tutorId: tutor.id,
       day: data.day,
       startTime: data.startTime,
       endTime: data.endTime
@@ -1491,7 +1501,11 @@ var createAvailability = async (data) => {
 };
 var getAvailabilityByTutor = async (tutorId) => {
   return prisma.availability.findMany({
-    where: { tutorId },
+    where: {
+      tutor: {
+        userId: tutorId
+      }
+    },
     orderBy: { day: "asc" }
   });
 };
@@ -1540,8 +1554,8 @@ var createAvailability2 = async (req, res) => {
         message: "Unauthorized"
       });
     }
-    const { day, startTime, endTime, tutorId } = req.body;
-    if (!day || !startTime || !endTime || !tutorId) {
+    const { day, startTime, endTime } = req.body;
+    if (!day || !startTime || !endTime) {
       return res.status(400).json({
         success: false,
         message: "Day, startTime and endTime are required"
@@ -1551,7 +1565,7 @@ var createAvailability2 = async (req, res) => {
       day,
       startTime,
       endTime,
-      tutorId
+      userId: req.user.id
     });
     res.status(201).json({
       success: true,
