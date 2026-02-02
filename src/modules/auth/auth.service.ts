@@ -118,6 +118,13 @@ const getUserById = async (id: string) => {
       phone: true,
       image: true,
       isBanned: true,
+      updatedAt: true,
+      createdAt: true,
+      tutorProfile: {
+        include: {
+          category: true,
+        },
+      },
     },
   });
 
@@ -128,8 +135,28 @@ const getUserById = async (id: string) => {
   return user;
 };
 
+const updateUser = async (
+  id: string,
+  data: {
+    name?: string;
+    phone?: string;
+    image?: string;
+    role?: Role;
+    isBanned?: boolean;
+  },
+) => {
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) throw new Error("User not found");
+
+  return prisma.user.update({
+    where: { id },
+    data,
+  });
+};
+
 export const AuthService = {
   createUser,
   signInUser,
   getUserById,
+  updateUser,
 };

@@ -436,11 +436,19 @@ var upsertTutorProfile = async (userId, data) => {
       userId
     },
     create: {
-      ...data,
-      userId
+      userId,
+      categoryId: data.categoryId,
+      bio: data.bio,
+      hourlyRate: data.hourlyRate,
+      experience: data.experience,
+      subjects: data.subjects
     },
     update: {
-      ...data
+      categoryId: data.categoryId,
+      bio: data.bio,
+      hourlyRate: data.hourlyRate,
+      experience: data.experience,
+      subjects: data.subjects
     },
     include: {
       user: true,
@@ -693,7 +701,14 @@ var getUserById = async (id) => {
       role: true,
       phone: true,
       image: true,
-      isBanned: true
+      isBanned: true,
+      updatedAt: true,
+      createdAt: true,
+      tutorProfile: {
+        include: {
+          category: true
+        }
+      }
     }
   });
   if (!user) {
@@ -701,10 +716,19 @@ var getUserById = async (id) => {
   }
   return user;
 };
+var updateUser = async (id, data) => {
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) throw new Error("User not found");
+  return prisma.user.update({
+    where: { id },
+    data
+  });
+};
 var AuthService = {
   createUser,
   signInUser,
-  getUserById
+  getUserById,
+  updateUser
 };
 
 // src/modules/auth/auth.controller.ts
@@ -773,10 +797,27 @@ var getCurrentUser = async (req, res) => {
     });
   }
 };
+var updateUser2 = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await AuthService.updateUser(id, req.body);
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: result
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message || "Failed to update user"
+    });
+  }
+};
 var AuthController = {
   register,
   login,
-  getCurrentUser
+  getCurrentUser,
+  updateUser: updateUser2
 };
 
 // src/modules/auth/auth.routes.ts
@@ -784,6 +825,7 @@ var router2 = express2.Router();
 router2.post("/register", AuthController.register);
 router2.post("/login", AuthController.login);
 router2.get("/me", auth(Role.STUDENT, Role.ADMIN, Role.TUTOR), AuthController.getCurrentUser);
+router2.patch("/:id", auth(Role.ADMIN, Role.TUTOR, Role.STUDENT), AuthController.updateUser);
 var AuthRoutes = router2;
 
 // src/app.ts
@@ -1715,16 +1757,8 @@ var UserController = {
 
 // src/modules/user/user.routes.ts
 var router7 = Router4();
-router7.get(
-  "/",
-  auth(Role.ADMIN),
-  UserController.getAllUsers
-);
-router7.patch(
-  "/:id",
-  auth(Role.ADMIN),
-  UserController.updateUserStatus
-);
+router7.get("/", auth(Role.ADMIN), UserController.getAllUsers);
+router7.patch("/:id", auth(Role.ADMIN), UserController.updateUserStatus);
 var UserRoutes = router7;
 
 // src/app.ts
