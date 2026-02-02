@@ -120,19 +120,36 @@ const getTutorProfileById = async (id: string) => {
 
 const upsertTutorProfile = async (
   userId: string,
-  data: Omit<TutorProfile, "id" | "userId" | "createdAt" | "updatedAt">,
+  data: {
+    bio: string;
+    hourlyRate: number;
+    experience: number;
+    subjects: string[];
+    categoryId: string;
+  },
 ) => {
   const result = await prisma.tutorProfile.upsert({
     where: {
       userId,
     },
+
     create: {
-      ...data,
-      userId,
+      userId, 
+      categoryId: data.categoryId,
+      bio: data.bio,
+      hourlyRate: data.hourlyRate,
+      experience: data.experience,
+      subjects: data.subjects,
     },
+
     update: {
-      ...data,
+      categoryId: data.categoryId,
+      bio: data.bio,
+      hourlyRate: data.hourlyRate,
+      experience: data.experience,
+      subjects: data.subjects,
     },
+
     include: {
       user: true,
       category: true,
