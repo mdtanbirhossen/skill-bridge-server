@@ -1761,11 +1761,121 @@ router7.get("/", auth(Role.ADMIN), UserController.getAllUsers);
 router7.patch("/:id", auth(Role.ADMIN), UserController.updateUserStatus);
 var UserRoutes = router7;
 
+// src/modules/statistic/statistic.routes.ts
+import { Router as Router5 } from "express";
+
+// src/modules/statistic/statistic.service.ts
+var getAdminStats = async () => {
+  const totalUsers = await prisma.user.count();
+  const totalStudents = await prisma.user.count({ where: { role: "STUDENT" } });
+  const totalTutors = await prisma.user.count({ where: { role: "TUTOR" } });
+  const totalAdmins = await prisma.user.count({ where: { role: "ADMIN" } });
+  const totalBookings = await prisma.booking.count();
+  const completedBookings = await prisma.booking.count({ where: { status: "COMPLETED" } });
+  const cancelledBookings = await prisma.booking.count({ where: { status: "CANCELLED" } });
+  const confirmedBookings = await prisma.booking.count({ where: { status: "CONFIRMED" } });
+  const totalCategories = await prisma.category.count();
+  const totalReviews = await prisma.review.count();
+  return {
+    totalUsers,
+    totalStudents,
+    totalTutors,
+    totalAdmins,
+    totalBookings,
+    completedBookings,
+    cancelledBookings,
+    confirmedBookings,
+    totalCategories,
+    totalReviews
+  };
+};
+var getTutorStats = async (tutorId) => {
+  const totalBookings = await prisma.booking.count({ where: { tutor: { userId: tutorId } } });
+  const completedBookings = await prisma.booking.count({ where: { tutor: { userId: tutorId }, status: "COMPLETED" } });
+  const upcomingBookings = await prisma.booking.count({ where: { tutor: { userId: tutorId }, status: "CONFIRMED" } });
+  const cancelledBookings = await prisma.booking.count({ where: { tutor: { userId: tutorId }, status: "CANCELLED" } });
+  const averageRating = await prisma.tutorProfile.findUnique({
+    where: { userId: tutorId }
+  });
+  const totalReviews = await prisma.review.count({ where: { tutor: { userId: tutorId } } });
+  const totalAvailability = await prisma.availability.count({ where: { tutor: { userId: tutorId } } });
+  return {
+    totalBookings,
+    completedBookings,
+    upcomingBookings,
+    averageRating: averageRating?.rating || 0,
+    totalReviews,
+    totalAvailability,
+    cancelledBookings
+  };
+};
+var getStudentStats = async (studentId) => {
+  const totalBookings = await prisma.booking.count({ where: { studentId } });
+  const completedBookings = await prisma.booking.count({ where: { studentId, status: "COMPLETED" } });
+  const upcomingBookings = await prisma.booking.count({ where: { studentId, status: "CONFIRMED" } });
+  const cancelledBookings = await prisma.booking.count({ where: { studentId, status: "CANCELLED" } });
+  return {
+    totalBookings,
+    completedBookings,
+    upcomingBookings,
+    cancelledBookings
+  };
+};
+var StatisticService = {
+  getAdminStats,
+  getTutorStats,
+  getStudentStats
+};
+
+// src/modules/statistic/statistic.controller.ts
+var getAdminStats2 = async (_req, res) => {
+  try {
+    const stats = await StatisticService.getAdminStats();
+    res.status(200).json({ success: true, data: stats });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || "Failed to fetch admin stats" });
+  }
+};
+var getTutorStats2 = async (req, res) => {
+  try {
+    const tutorId = req.user?.id;
+    const stats = await StatisticService.getTutorStats(tutorId);
+    res.status(200).json({ success: true, data: stats });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || "Failed to fetch tutor stats" });
+  }
+};
+var getStudentStats2 = async (req, res) => {
+  try {
+    const studentId = req.user?.id;
+    const stats = await StatisticService.getStudentStats(studentId);
+    res.status(200).json({ success: true, data: stats });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || "Failed to fetch student stats" });
+  }
+};
+var StatisticController = {
+  getAdminStats: getAdminStats2,
+  getTutorStats: getTutorStats2,
+  getStudentStats: getStudentStats2
+};
+
+// src/modules/statistic/statistic.routes.ts
+var router8 = Router5();
+router8.get("/admin", auth(Role.ADMIN), StatisticController.getAdminStats);
+router8.get("/tutor", auth(Role.TUTOR), StatisticController.getTutorStats);
+router8.get("/student", auth(Role.STUDENT), StatisticController.getStudentStats);
+var StatisticsRoutes = router8;
+
 // src/app.ts
 var app = express4();
 app.use(
   cors({
-    origin: [process.env.APP_URL || "http://localhost:3000", "http://localhost:3000", "https://skill-bridge-client-psi.vercel.app"],
+    origin: [
+      process.env.APP_URL || "http://localhost:3000",
+      "http://localhost:3000",
+      "https://skill-bridge-client-psi.vercel.app"
+    ],
     credentials: true
   })
 );
@@ -1778,6 +1888,7 @@ app.use("/api/booking", BookingRoutes);
 app.use("/api/review", ReviewRoutes);
 app.use("/api/availability", AvailabilityRoutes);
 app.use("/api/user", UserRoutes);
+app.use("/api/statistic", StatisticsRoutes);
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });

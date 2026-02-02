@@ -8,12 +8,17 @@ import { BookingRoutes } from "./modules/booking/booking.routes";
 import { ReviewRoutes } from "./modules/review/review.routes";
 import { AvailabilityRoutes } from "./modules/availability/availability.routes";
 import { UserRoutes } from "./modules/user/user.routes";
+import { StatisticsRoutes } from "./modules/statistic/statistic.routes";
 
 const app = express();
 
 app.use(
   cors({
-    origin: [ process.env.APP_URL || "http://localhost:3000" , "http://localhost:3000", "https://skill-bridge-client-psi.vercel.app"],
+    origin: [
+      process.env.APP_URL || "http://localhost:3000",
+      "http://localhost:3000",
+      "https://skill-bridge-client-psi.vercel.app",
+    ],
     credentials: true,
   }),
 );
@@ -27,6 +32,7 @@ app.use("/api/booking", BookingRoutes);
 app.use("/api/review", ReviewRoutes);
 app.use("/api/availability", AvailabilityRoutes);
 app.use("/api/user", UserRoutes);
+app.use("/api/statistic", StatisticsRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
