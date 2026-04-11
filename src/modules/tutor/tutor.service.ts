@@ -3,188 +3,218 @@ import { TutorProfileWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
 
 const createTutorProfile = async (
-  data: Omit<TutorProfile, "id" | "createdAt" | "updatedAt" | "userId">,
-  userId: string,
+    data: Omit<TutorProfile, "id" | "createdAt" | "updatedAt" | "userId">,
+    userId: string,
 ) => {
-  const result = await prisma.tutorProfile.create({
-    data: {
-      ...data,
-      userId,
-    },
-  });
-  return result;
+    const result = await prisma.tutorProfile.create({
+        data: {
+            ...data,
+            userId,
+        },
+    });
+    return result;
 };
 
 const getAllTutorProfiles = async ({
-  search,
-  category,
-  page,
-  limit,
-  skip,
-  sortBy,
-  sortOrder,
-}: {
-  search: string | undefined;
-  category: string;
-  page: number;
-  limit: number;
-  skip: number;
-  sortBy: string;
-  sortOrder: string;
-}) => {
-  const andConditions: any[] = [];
-
-  // Search by tutor bio or user name
-  if (search) {
-    andConditions.push({
-      OR: [
-        {
-          bio: {
-            contains: search,
-            mode: "insensitive",
-          },
-        },
-        {
-          subjects: {
-            has: search,
-          },
-        },
-        {
-          user: {
-            name: {
-              contains: search,
-              mode: "insensitive",
-            },
-          },
-        },
-      ],
-    });
-  }
-
-  // Filter by categories
-  if (category && category.length > 0) {
-    andConditions.push({
-      category: {
-        name: { contains: category, mode: "insensitive" },
-      },
-    });
-  }
-
-  const result = await prisma.tutorProfile.findMany({
+    search,
+    category,
+    page,
+    limit,
     skip,
-    take: limit,
-    where: {
-      AND: andConditions,
-    },
-    orderBy: {
-      [sortBy]: sortOrder,
-    },
-    include: {
-      user: true,
-      category: true,
-      availability: true,
-    },
-  });
+    sortBy,
+    sortOrder,
+    minPrice,
+    maxPrice,
+    location,
+    minRating,
+}: {
+    search: string | undefined;
+    category: string;
+    page: number;
+    limit: number;
+    skip: number;
+    sortBy: string;
+    sortOrder: string;
+    minPrice?: number | undefined;
+    maxPrice?: number | undefined;
+    location?: string | undefined;
+    minRating?: number | undefined;
+}) => {
+    const andConditions: any[] = [];
 
-  const total = await prisma.tutorProfile.count({
-    where: {
-      AND: andConditions,
-    },
-  });
+    // Search by tutor bio or user name
+    if (search) {
+        andConditions.push({
+            OR: [
+                {
+                    bio: {
+                        contains: search,
+                        mode: "insensitive",
+                    },
+                },
+                {
+                    subjects: {
+                        has: search,
+                    },
+                },
+                {
+                    user: {
+                        name: {
+                            contains: search,
+                            mode: "insensitive",
+                        },
+                    },
+                },
+            ],
+        });
+    }
 
-  return {
-    data: result,
-    meta: {
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    },
-  };
+    // Filter by categories
+    if (category && category.length > 0) {
+        andConditions.push({
+            category: {
+                name: { contains: category, mode: "insensitive" },
+            },
+        });
+    }
+
+    // Filter by location
+    if (location) {
+        andConditions.push({
+            location: { contains: location, mode: "insensitive" },
+        });
+    }
+
+    // Filter by min rating
+    if (minRating !== undefined) {
+        andConditions.push({
+            rating: { gte: minRating },
+        });
+    }
+
+    // Filter by price range
+    if (minPrice !== undefined || maxPrice !== undefined) {
+        const priceFilter: any = {};
+        if (minPrice !== undefined) priceFilter.gte = minPrice;
+        if (maxPrice !== undefined) priceFilter.lte = maxPrice;
+        andConditions.push({ hourlyRate: priceFilter });
+    }
+
+    const result = await prisma.tutorProfile.findMany({
+        skip,
+        take: limit,
+        where: {
+            AND: andConditions,
+        },
+        orderBy: {
+            [sortBy]: sortOrder,
+        },
+        include: {
+            user: true,
+            category: true,
+            availability: true,
+        },
+    });
+
+    const total = await prisma.tutorProfile.count({
+        where: {
+            AND: andConditions,
+        },
+    });
+
+    return {
+        data: result,
+        meta: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        },
+    };
 };
 
 const getTutorProfileById = async (id: string) => {
-  const result = await prisma.tutorProfile.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      user: true,
-      category: true,
-      availability: true,
-      reviews: true,
-    },
-  });
-  return result;
+    const result = await prisma.tutorProfile.findUnique({
+        where: {
+            id,
+        },
+        include: {
+            user: true,
+            category: true,
+            availability: true,
+            reviews: true,
+        },
+    });
+    return result;
 };
 
 const upsertTutorProfile = async (
-  userId: string,
-  data: {
-    bio: string;
-    hourlyRate: number;
-    experience: number;
-    subjects: string[];
-    categoryId: string;
-  },
+    userId: string,
+    data: {
+        bio: string;
+        hourlyRate: number;
+        experience: number;
+        subjects: string[];
+        categoryId: string;
+    },
 ) => {
-  const result = await prisma.tutorProfile.upsert({
-    where: {
-      userId,
-    },
+    const result = await prisma.tutorProfile.upsert({
+        where: {
+            userId,
+        },
 
-    create: {
-      userId, 
-      categoryId: data.categoryId,
-      bio: data.bio,
-      hourlyRate: data.hourlyRate,
-      experience: data.experience,
-      subjects: data.subjects,
-    },
+        create: {
+            userId,
+            categoryId: data.categoryId,
+            bio: data.bio,
+            hourlyRate: data.hourlyRate,
+            experience: data.experience,
+            subjects: data.subjects,
+        },
 
-    update: {
-      categoryId: data.categoryId,
-      bio: data.bio,
-      hourlyRate: data.hourlyRate,
-      experience: data.experience,
-      subjects: data.subjects,
-    },
+        update: {
+            categoryId: data.categoryId,
+            bio: data.bio,
+            hourlyRate: data.hourlyRate,
+            experience: data.experience,
+            subjects: data.subjects,
+        },
 
-    include: {
-      user: true,
-      category: true,
-      availability: true,
-    },
-  });
+        include: {
+            user: true,
+            category: true,
+            availability: true,
+        },
+    });
 
-  return result;
+    return result;
 };
 
 // tutor.service.ts
 const deleteTutorProfile = async (userId: string) => {
-  const existingProfile = await prisma.tutorProfile.findUnique({
-    where: {
-      userId,
-    },
-  });
+    const existingProfile = await prisma.tutorProfile.findUnique({
+        where: {
+            userId,
+        },
+    });
 
-  if (!existingProfile) {
-    throw new Error("Tutor profile not found");
-  }
+    if (!existingProfile) {
+        throw new Error("Tutor profile not found");
+    }
 
-  const result = await prisma.tutorProfile.delete({
-    where: {
-      userId,
-    },
-  });
+    const result = await prisma.tutorProfile.delete({
+        where: {
+            userId,
+        },
+    });
 
-  return result;
+    return result;
 };
 
 export const TutorProfileService = {
-  createTutorProfile,
-  getAllTutorProfiles,
-  getTutorProfileById,
-  upsertTutorProfile,
-  deleteTutorProfile,
+    createTutorProfile,
+    getAllTutorProfiles,
+    getTutorProfileById,
+    upsertTutorProfile,
+    deleteTutorProfile,
 };

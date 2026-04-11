@@ -18,8 +18,11 @@ const createTutorProfile = async (req: Request, res: Response) => {
 
 const getAllTutorProfile = async (req: Request, res: Response) => {
   try {
-    const { search } = req.query;
-    const category = req.query.category as string
+    const { search, location } = req.query;
+    const category = req.query.category as string;
+    const minPrice = req.query.minPrice ? Number(req.query.minPrice) : undefined;
+    const maxPrice = req.query.maxPrice ? Number(req.query.maxPrice) : undefined;
+    const minRating = req.query.minRating ? Number(req.query.minRating) : undefined;
 
     const { page, limit, sortBy, sortOrder, skip } = paginationSortingHelper(
       req.query as any
@@ -33,6 +36,10 @@ const getAllTutorProfile = async (req: Request, res: Response) => {
       sortBy,
       sortOrder,
       skip,
+      minPrice,
+      maxPrice,
+      location: location as string | undefined,
+      minRating,
     });
 
     res.status(200).json(result);

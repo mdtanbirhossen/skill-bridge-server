@@ -2,6 +2,8 @@ enum Role {
     STUDENT
     TUTOR
     ADMIN
+    MANAGER
+    MODERATOR
 }
 
 model User {

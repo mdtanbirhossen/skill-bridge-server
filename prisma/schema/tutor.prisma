@@ -4,6 +4,7 @@ model TutorProfile {
   hourlyRate Float
   experience Int
   rating     Float    @default(0)
+  location   String   @default("Global")
   subjects   String[]
 
   userId String @unique

@@ -8,6 +8,9 @@
     "dev": "tsx watch src/server.ts",
     "seed:admin": "tsx src/script/seedAdmin.ts",
     "build": "prisma generate && tsup src/index.ts --format esm --platform node --target node20 --outDir api --external pg-native",
+    "migrate": "prisma migrate dev",
+    "generate": "prisma generate",
+    "studio": "prisma studio",
     "postinstall": "prisma generate"
   },
   "keywords": [],
