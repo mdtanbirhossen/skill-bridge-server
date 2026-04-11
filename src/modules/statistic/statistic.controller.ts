@@ -30,8 +30,28 @@ const getStudentStats = async (req: Request, res: Response) => {
   }
 };
 
+const getManagerStats = async (_req: Request, res: Response) => {
+  try {
+    const stats = await StatisticService.getManagerStats();
+    res.status(200).json({ success: true, data: stats });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || "Failed to fetch manager stats" });
+  }
+};
+
+const getModeratorStats = async (_req: Request, res: Response) => {
+  try {
+    const stats = await StatisticService.getModeratorStats();
+    res.status(200).json({ success: true, data: stats });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || "Failed to fetch moderator stats" });
+  }
+};
+
 export const StatisticController = {
   getAdminStats,
   getTutorStats,
   getStudentStats,
+  getManagerStats,
+  getModeratorStats,
 };
