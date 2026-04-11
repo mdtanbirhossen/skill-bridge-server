@@ -7,7 +7,8 @@ const router = express.Router();
 
 router.post("/register", AuthController.register);
 router.post("/login", AuthController.login);
-router.get("/me", auth(Role.STUDENT, Role.ADMIN, Role.TUTOR ), AuthController.getCurrentUser);
-router.patch("/:id", auth(Role.ADMIN,Role.TUTOR,Role.STUDENT), AuthController.updateUser);
+router.post("/social-login", AuthController.socialLogin);
+router.get("/me", auth(Role.STUDENT, Role.ADMIN, Role.TUTOR, Role.MANAGER, Role.MODERATOR ), AuthController.getCurrentUser);
+router.patch("/:id", auth(Role.ADMIN,Role.TUTOR,Role.STUDENT, Role.MANAGER, Role.MODERATOR), AuthController.updateUser);
 
 export const AuthRoutes = router;

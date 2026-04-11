@@ -107,6 +107,44 @@ const signInUser = async (data: { email: string; password: string }) => {
   return { user, token };
 };
 
+const socialLogin = async (data: { email: string; name: string; image?: string }) => {
+  let user = await prisma.user.findUnique({
+    where: { email: data.email },
+  });
+
+  if (!user) {
+    const randomPassword = Math.random().toString(36).slice(-10) + "A1!";
+    const hashedPassword = await bcrypt.hash(randomPassword, 12);
+
+    user = await prisma.user.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        password: hashedPassword,
+        image: data.image ?? null,
+        emailVerified: true,
+        role: Role.STUDENT,
+      },
+    });
+  } else if (user.isBanned) {
+    throw new Error("Can't Login! You are Banned by Admin!");
+  }
+
+  const token = jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      isBanned: user.isBanned,
+    },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN },
+  );
+
+  return { user, token };
+};
+
 const getUserById = async (id: string) => {
   const user = await prisma.user.findUnique({
     where: { id },
@@ -157,6 +195,7 @@ const updateUser = async (
 export const AuthService = {
   createUser,
   signInUser,
+  socialLogin,
   getUserById,
   updateUser,
 };

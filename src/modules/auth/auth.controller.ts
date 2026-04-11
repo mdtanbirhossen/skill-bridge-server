@@ -3,7 +3,7 @@ import { AuthService } from "./auth.service";
 
 const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -65,6 +65,32 @@ const login = async (req: Request, res: Response) => {
   }
 };
 
+const socialLogin = async (req: Request, res: Response) => {
+  try {
+    const { email, name, image } = req.body;
+
+    if (!email || !name) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and name are required for social login",
+      });
+    }
+
+    const result = await AuthService.socialLogin({ email, name, image });
+
+    return res.status(200).json({
+      success: true,
+      message: "Social login successful",
+      data: result,
+    });
+  } catch (error: any) {
+    return res.status(401).json({
+      success: false,
+      message: error.message || "Social login failed",
+    });
+  }
+};
+
 const getCurrentUser = async (req: Request, res: Response) => {
   try {
     const user = req.user;
@@ -111,6 +137,7 @@ const updateUser = async (req: Request, res: Response) => {
 export const AuthController = {
   register,
   login,
+  socialLogin,
   getCurrentUser,
   updateUser
 };
