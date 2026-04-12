@@ -149,14 +149,14 @@ var config = {
   "clientVersion": "7.2.0",
   "engineVersion": "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3",
   "activeProvider": "postgresql",
-  "inlineSchema": 'enum WeekDay {\n  MONDAY\n  TUESDAY\n  WEDNESDAY\n  THURSDAY\n  FRIDAY\n  SATURDAY\n  SUNDAY\n}\n\nmodel Availability {\n  id        String  @id @default(uuid())\n  day       WeekDay\n  startTime String\n  endTime   String\n\n  tutorId String\n  tutor   TutorProfile @relation(fields: [tutorId], references: [id])\n\n  @@map("availability")\n}\n\nenum BookingStatus {\n  CONFIRMED\n  COMPLETED\n  CANCELLED\n}\n\nmodel Booking {\n  id        String        @id @default(uuid())\n  status    BookingStatus @default(CONFIRMED)\n  date      DateTime\n  startTime String\n  endTime   String\n\n  studentId String\n  tutorId   String\n\n  student User         @relation("StudentBookings", fields: [studentId], references: [id])\n  tutor   TutorProfile @relation("TutorBookings", fields: [tutorId], references: [id])\n\n  review Review?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map("booking")\n}\n\nmodel Category {\n  id   String @id @default(uuid())\n  name String @unique\n\n  tutors TutorProfile[]\n\n  createdAt DateTime @default(now())\n\n  @@map("category")\n}\n\nmodel Review {\n  id      String  @id @default(uuid())\n  rating  Int // 1\u20135\n  comment String?\n\n  studentId String\n  tutorId   String\n  bookingId String @unique\n\n  student User         @relation("StudentReviews", fields: [studentId], references: [id])\n  tutor   TutorProfile @relation("TutorReviews", fields: [tutorId], references: [id])\n  booking Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)\n\n  createdAt DateTime @default(now())\n\n  @@map("review")\n}\n\n// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = "prisma-client"\n  output   = "../../generated/prisma"\n}\n\ndatasource db {\n  provider = "postgresql"\n}\n\nmodel TutorProfile {\n  id         String   @id @default(uuid())\n  bio        String\n  hourlyRate Float\n  experience Int\n  rating     Float    @default(0)\n  subjects   String[]\n\n  userId String @unique\n  user   User   @relation(fields: [userId], references: [id])\n\n  categoryId String\n  category   Category @relation(fields: [categoryId], references: [id])\n\n  reviews      Review[]       @relation("TutorReviews")\n  Bookings     Booking[]      @relation("TutorBookings")\n  availability Availability[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map("tutor_profile")\n}\n\nenum Role {\n  STUDENT\n  TUTOR\n  ADMIN\n}\n\nmodel User {\n  id            String  @id @default(uuid())\n  name          String\n  email         String  @unique\n  password      String\n  phone         String?\n  emailVerified Boolean @default(false)\n  image         String?\n\n  role     Role    @default(STUDENT)\n  isBanned Boolean @default(false)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  // Your custom relations\n  tutorProfile     TutorProfile?\n  studentBookings  Booking[]     @relation("StudentBookings")\n  reviewsAsStudent Review[]      @relation("StudentReviews")\n\n  @@map("user")\n}\n',
+  "inlineSchema": 'enum WeekDay {\n  MONDAY\n  TUESDAY\n  WEDNESDAY\n  THURSDAY\n  FRIDAY\n  SATURDAY\n  SUNDAY\n}\n\nmodel Availability {\n  id        String  @id @default(uuid())\n  day       WeekDay\n  startTime String\n  endTime   String\n\n  tutorId String\n  tutor   TutorProfile @relation(fields: [tutorId], references: [id])\n\n  @@map("availability")\n}\n\nenum BookingStatus {\n  CONFIRMED\n  COMPLETED\n  CANCELLED\n}\n\nmodel Booking {\n  id        String        @id @default(uuid())\n  status    BookingStatus @default(CONFIRMED)\n  date      DateTime\n  startTime String\n  endTime   String\n\n  studentId String\n  tutorId   String\n\n  student User         @relation("StudentBookings", fields: [studentId], references: [id])\n  tutor   TutorProfile @relation("TutorBookings", fields: [tutorId], references: [id])\n\n  review Review?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map("booking")\n}\n\nmodel Category {\n  id   String @id @default(uuid())\n  name String @unique\n\n  tutors TutorProfile[]\n\n  createdAt DateTime @default(now())\n\n  @@map("category")\n}\n\nmodel Review {\n  id      String  @id @default(uuid())\n  rating  Int // 1\u20135\n  comment String?\n\n  studentId String\n  tutorId   String\n  bookingId String @unique\n\n  student User         @relation("StudentReviews", fields: [studentId], references: [id])\n  tutor   TutorProfile @relation("TutorReviews", fields: [tutorId], references: [id])\n  booking Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)\n\n  createdAt DateTime @default(now())\n\n  @@map("review")\n}\n\n// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = "prisma-client"\n  output   = "../../generated/prisma"\n}\n\ndatasource db {\n  provider = "postgresql"\n}\n\nmodel TutorProfile {\n  id         String   @id @default(uuid())\n  bio        String\n  hourlyRate Float\n  experience Int\n  rating     Float    @default(0)\n  location   String   @default("Global")\n  subjects   String[]\n\n  userId String @unique\n  user   User   @relation(fields: [userId], references: [id])\n\n  categoryId String\n  category   Category @relation(fields: [categoryId], references: [id])\n\n  reviews      Review[]       @relation("TutorReviews")\n  Bookings     Booking[]      @relation("TutorBookings")\n  availability Availability[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map("tutor_profile")\n}\n\nenum Role {\n  STUDENT\n  TUTOR\n  ADMIN\n  MANAGER\n  MODERATOR\n}\n\nmodel User {\n  id            String  @id @default(uuid())\n  name          String\n  email         String  @unique\n  password      String\n  phone         String?\n  emailVerified Boolean @default(false)\n  image         String?\n\n  role     Role    @default(STUDENT)\n  isBanned Boolean @default(false)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  // Your custom relations\n  tutorProfile     TutorProfile?\n  studentBookings  Booking[]     @relation("StudentBookings")\n  reviewsAsStudent Review[]      @relation("StudentReviews")\n\n  @@map("user")\n}\n',
   "runtimeDataModel": {
     "models": {},
     "enums": {},
     "types": {}
   }
 };
-config.runtimeDataModel = JSON.parse('{"models":{"Availability":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"day","kind":"enum","type":"WeekDay"},{"name":"startTime","kind":"scalar","type":"String"},{"name":"endTime","kind":"scalar","type":"String"},{"name":"tutorId","kind":"scalar","type":"String"},{"name":"tutor","kind":"object","type":"TutorProfile","relationName":"AvailabilityToTutorProfile"}],"dbName":"availability"},"Booking":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"status","kind":"enum","type":"BookingStatus"},{"name":"date","kind":"scalar","type":"DateTime"},{"name":"startTime","kind":"scalar","type":"String"},{"name":"endTime","kind":"scalar","type":"String"},{"name":"studentId","kind":"scalar","type":"String"},{"name":"tutorId","kind":"scalar","type":"String"},{"name":"student","kind":"object","type":"User","relationName":"StudentBookings"},{"name":"tutor","kind":"object","type":"TutorProfile","relationName":"TutorBookings"},{"name":"review","kind":"object","type":"Review","relationName":"BookingToReview"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"booking"},"Category":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"tutors","kind":"object","type":"TutorProfile","relationName":"CategoryToTutorProfile"},{"name":"createdAt","kind":"scalar","type":"DateTime"}],"dbName":"category"},"Review":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"rating","kind":"scalar","type":"Int"},{"name":"comment","kind":"scalar","type":"String"},{"name":"studentId","kind":"scalar","type":"String"},{"name":"tutorId","kind":"scalar","type":"String"},{"name":"bookingId","kind":"scalar","type":"String"},{"name":"student","kind":"object","type":"User","relationName":"StudentReviews"},{"name":"tutor","kind":"object","type":"TutorProfile","relationName":"TutorReviews"},{"name":"booking","kind":"object","type":"Booking","relationName":"BookingToReview"},{"name":"createdAt","kind":"scalar","type":"DateTime"}],"dbName":"review"},"TutorProfile":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"bio","kind":"scalar","type":"String"},{"name":"hourlyRate","kind":"scalar","type":"Float"},{"name":"experience","kind":"scalar","type":"Int"},{"name":"rating","kind":"scalar","type":"Float"},{"name":"subjects","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"TutorProfileToUser"},{"name":"categoryId","kind":"scalar","type":"String"},{"name":"category","kind":"object","type":"Category","relationName":"CategoryToTutorProfile"},{"name":"reviews","kind":"object","type":"Review","relationName":"TutorReviews"},{"name":"Bookings","kind":"object","type":"Booking","relationName":"TutorBookings"},{"name":"availability","kind":"object","type":"Availability","relationName":"AvailabilityToTutorProfile"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"tutor_profile"},"User":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"email","kind":"scalar","type":"String"},{"name":"password","kind":"scalar","type":"String"},{"name":"phone","kind":"scalar","type":"String"},{"name":"emailVerified","kind":"scalar","type":"Boolean"},{"name":"image","kind":"scalar","type":"String"},{"name":"role","kind":"enum","type":"Role"},{"name":"isBanned","kind":"scalar","type":"Boolean"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"tutorProfile","kind":"object","type":"TutorProfile","relationName":"TutorProfileToUser"},{"name":"studentBookings","kind":"object","type":"Booking","relationName":"StudentBookings"},{"name":"reviewsAsStudent","kind":"object","type":"Review","relationName":"StudentReviews"}],"dbName":"user"}},"enums":{},"types":{}}');
+config.runtimeDataModel = JSON.parse('{"models":{"Availability":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"day","kind":"enum","type":"WeekDay"},{"name":"startTime","kind":"scalar","type":"String"},{"name":"endTime","kind":"scalar","type":"String"},{"name":"tutorId","kind":"scalar","type":"String"},{"name":"tutor","kind":"object","type":"TutorProfile","relationName":"AvailabilityToTutorProfile"}],"dbName":"availability"},"Booking":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"status","kind":"enum","type":"BookingStatus"},{"name":"date","kind":"scalar","type":"DateTime"},{"name":"startTime","kind":"scalar","type":"String"},{"name":"endTime","kind":"scalar","type":"String"},{"name":"studentId","kind":"scalar","type":"String"},{"name":"tutorId","kind":"scalar","type":"String"},{"name":"student","kind":"object","type":"User","relationName":"StudentBookings"},{"name":"tutor","kind":"object","type":"TutorProfile","relationName":"TutorBookings"},{"name":"review","kind":"object","type":"Review","relationName":"BookingToReview"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"booking"},"Category":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"tutors","kind":"object","type":"TutorProfile","relationName":"CategoryToTutorProfile"},{"name":"createdAt","kind":"scalar","type":"DateTime"}],"dbName":"category"},"Review":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"rating","kind":"scalar","type":"Int"},{"name":"comment","kind":"scalar","type":"String"},{"name":"studentId","kind":"scalar","type":"String"},{"name":"tutorId","kind":"scalar","type":"String"},{"name":"bookingId","kind":"scalar","type":"String"},{"name":"student","kind":"object","type":"User","relationName":"StudentReviews"},{"name":"tutor","kind":"object","type":"TutorProfile","relationName":"TutorReviews"},{"name":"booking","kind":"object","type":"Booking","relationName":"BookingToReview"},{"name":"createdAt","kind":"scalar","type":"DateTime"}],"dbName":"review"},"TutorProfile":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"bio","kind":"scalar","type":"String"},{"name":"hourlyRate","kind":"scalar","type":"Float"},{"name":"experience","kind":"scalar","type":"Int"},{"name":"rating","kind":"scalar","type":"Float"},{"name":"location","kind":"scalar","type":"String"},{"name":"subjects","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"TutorProfileToUser"},{"name":"categoryId","kind":"scalar","type":"String"},{"name":"category","kind":"object","type":"Category","relationName":"CategoryToTutorProfile"},{"name":"reviews","kind":"object","type":"Review","relationName":"TutorReviews"},{"name":"Bookings","kind":"object","type":"Booking","relationName":"TutorBookings"},{"name":"availability","kind":"object","type":"Availability","relationName":"AvailabilityToTutorProfile"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"tutor_profile"},"User":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"email","kind":"scalar","type":"String"},{"name":"password","kind":"scalar","type":"String"},{"name":"phone","kind":"scalar","type":"String"},{"name":"emailVerified","kind":"scalar","type":"Boolean"},{"name":"image","kind":"scalar","type":"String"},{"name":"role","kind":"enum","type":"Role"},{"name":"isBanned","kind":"scalar","type":"Boolean"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"tutorProfile","kind":"object","type":"TutorProfile","relationName":"TutorProfileToUser"},{"name":"studentBookings","kind":"object","type":"Booking","relationName":"StudentBookings"},{"name":"reviewsAsStudent","kind":"object","type":"Review","relationName":"StudentReviews"}],"dbName":"user"}},"enums":{},"types":{}}');
 async function decodeBase64AsWasm(wasmBase64) {
   const { Buffer: Buffer2 } = await import("buffer");
   const wasmArray = Buffer2.from(wasmBase64, "base64");
@@ -283,6 +283,7 @@ var TutorProfileScalarFieldEnum = {
   hourlyRate: "hourlyRate",
   experience: "experience",
   rating: "rating",
+  location: "location",
   subjects: "subjects",
   userId: "userId",
   categoryId: "categoryId",
@@ -351,7 +352,11 @@ var getAllTutorProfiles = async ({
   limit,
   skip,
   sortBy,
-  sortOrder
+  sortOrder,
+  minPrice,
+  maxPrice,
+  location,
+  minRating
 }) => {
   const andConditions = [];
   if (search) {
@@ -385,6 +390,22 @@ var getAllTutorProfiles = async ({
         name: { contains: category, mode: "insensitive" }
       }
     });
+  }
+  if (location) {
+    andConditions.push({
+      location: { contains: location, mode: "insensitive" }
+    });
+  }
+  if (minRating !== void 0) {
+    andConditions.push({
+      rating: { gte: minRating }
+    });
+  }
+  if (minPrice !== void 0 || maxPrice !== void 0) {
+    const priceFilter = {};
+    if (minPrice !== void 0) priceFilter.gte = minPrice;
+    if (maxPrice !== void 0) priceFilter.lte = maxPrice;
+    andConditions.push({ hourlyRate: priceFilter });
   }
   const result = await prisma.tutorProfile.findMany({
     skip,
@@ -498,8 +519,11 @@ var createTutorProfile2 = async (req, res) => {
 };
 var getAllTutorProfile = async (req, res) => {
   try {
-    const { search } = req.query;
+    const { search, location } = req.query;
     const category = req.query.category;
+    const minPrice = req.query.minPrice ? Number(req.query.minPrice) : void 0;
+    const maxPrice = req.query.maxPrice ? Number(req.query.maxPrice) : void 0;
+    const minRating = req.query.minRating ? Number(req.query.minRating) : void 0;
     const { page, limit, sortBy, sortOrder, skip } = paginationSorting_default(
       req.query
     );
@@ -510,7 +534,11 @@ var getAllTutorProfile = async (req, res) => {
       limit,
       sortBy,
       sortOrder,
-      skip
+      skip,
+      minPrice,
+      maxPrice,
+      location,
+      minRating
     });
     res.status(200).json(result);
   } catch (error) {
@@ -596,7 +624,9 @@ var BookingStatus = {
 var Role = {
   STUDENT: "STUDENT",
   TUTOR: "TUTOR",
-  ADMIN: "ADMIN"
+  ADMIN: "ADMIN",
+  MANAGER: "MANAGER",
+  MODERATOR: "MODERATOR"
 };
 
 // src/modules/tutor/tutor.routes.ts
@@ -691,6 +721,39 @@ var signInUser = async (data) => {
   );
   return { user, token };
 };
+var socialLogin = async (data) => {
+  let user = await prisma.user.findUnique({
+    where: { email: data.email }
+  });
+  if (!user) {
+    const randomPassword = Math.random().toString(36).slice(-10) + "A1!";
+    const hashedPassword = await bcrypt.hash(randomPassword, 12);
+    user = await prisma.user.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        password: hashedPassword,
+        image: data.image ?? null,
+        emailVerified: true,
+        role: Role.STUDENT
+      }
+    });
+  } else if (user.isBanned) {
+    throw new Error("Can't Login! You are Banned by Admin!");
+  }
+  const token = jwt2.sign(
+    {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      isBanned: user.isBanned
+    },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN }
+  );
+  return { user, token };
+};
 var getUserById = async (id) => {
   const user = await prisma.user.findUnique({
     where: { id },
@@ -727,6 +790,7 @@ var updateUser = async (id, data) => {
 var AuthService = {
   createUser,
   signInUser,
+  socialLogin,
   getUserById,
   updateUser
 };
@@ -734,7 +798,7 @@ var AuthService = {
 // src/modules/auth/auth.controller.ts
 var register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -773,6 +837,28 @@ var login = async (req, res) => {
     return res.status(401).json({
       success: false,
       message: error.message || "Invalid email or password"
+    });
+  }
+};
+var socialLogin2 = async (req, res) => {
+  try {
+    const { email, name, image } = req.body;
+    if (!email || !name) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and name are required for social login"
+      });
+    }
+    const result = await AuthService.socialLogin({ email, name, image });
+    return res.status(200).json({
+      success: true,
+      message: "Social login successful",
+      data: result
+    });
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: error.message || "Social login failed"
     });
   }
 };
@@ -816,6 +902,7 @@ var updateUser2 = async (req, res) => {
 var AuthController = {
   register,
   login,
+  socialLogin: socialLogin2,
   getCurrentUser,
   updateUser: updateUser2
 };
@@ -824,8 +911,9 @@ var AuthController = {
 var router2 = express2.Router();
 router2.post("/register", AuthController.register);
 router2.post("/login", AuthController.login);
-router2.get("/me", auth(Role.STUDENT, Role.ADMIN, Role.TUTOR), AuthController.getCurrentUser);
-router2.patch("/:id", auth(Role.ADMIN, Role.TUTOR, Role.STUDENT), AuthController.updateUser);
+router2.post("/social-login", AuthController.socialLogin);
+router2.get("/me", auth(Role.STUDENT, Role.ADMIN, Role.TUTOR, Role.MANAGER, Role.MODERATOR), AuthController.getCurrentUser);
+router2.patch("/:id", auth(Role.ADMIN, Role.TUTOR, Role.STUDENT, Role.MANAGER, Role.MODERATOR), AuthController.updateUser);
 var AuthRoutes = router2;
 
 // src/app.ts
@@ -1776,6 +1864,31 @@ var getAdminStats = async () => {
   const confirmedBookings = await prisma.booking.count({ where: { status: "CONFIRMED" } });
   const totalCategories = await prisma.category.count();
   const totalReviews = await prisma.review.count();
+  const bookingsByStatus = [
+    { name: "Completed", value: completedBookings },
+    { name: "Cancelled", value: cancelledBookings },
+    { name: "Confirmed", value: confirmedBookings }
+  ];
+  const sixMonthsAgo = /* @__PURE__ */ new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const recentBookingsData = await prisma.booking.findMany({
+    where: { createdAt: { gte: sixMonthsAgo } },
+    select: { createdAt: true }
+  });
+  const monthlyData = recentBookingsData.reduce((acc, booking) => {
+    const month = booking.createdAt.toLocaleString("default", { month: "short" });
+    acc[month] = (acc[month] || 0) + 1;
+    return acc;
+  }, {});
+  const bookingsByMonth = Object.entries(monthlyData).map(([name, value]) => ({ name, value }));
+  const recentBookings = await prisma.booking.findMany({
+    take: 5,
+    orderBy: { createdAt: "desc" },
+    include: {
+      student: { select: { name: true, email: true } },
+      tutor: { include: { user: { select: { name: true } } } }
+    }
+  });
   return {
     totalUsers,
     totalStudents,
@@ -1786,7 +1899,10 @@ var getAdminStats = async () => {
     cancelledBookings,
     confirmedBookings,
     totalCategories,
-    totalReviews
+    totalReviews,
+    bookingsByStatus,
+    bookingsByMonth,
+    recentBookings
   };
 };
 var getTutorStats = async (tutorId) => {
@@ -1799,6 +1915,29 @@ var getTutorStats = async (tutorId) => {
   });
   const totalReviews = await prisma.review.count({ where: { tutor: { userId: tutorId } } });
   const totalAvailability = await prisma.availability.count({ where: { tutor: { userId: tutorId } } });
+  const bookingsByStatus = [
+    { name: "Completed", value: completedBookings },
+    { name: "Cancelled", value: cancelledBookings },
+    { name: "Confirmed", value: upcomingBookings }
+  ];
+  const sixMonthsAgo = /* @__PURE__ */ new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const recentBookingsData = await prisma.booking.findMany({
+    where: { tutor: { userId: tutorId }, createdAt: { gte: sixMonthsAgo } },
+    select: { createdAt: true }
+  });
+  const monthlyData = recentBookingsData.reduce((acc, booking) => {
+    const month = booking.createdAt.toLocaleString("default", { month: "short" });
+    acc[month] = (acc[month] || 0) + 1;
+    return acc;
+  }, {});
+  const bookingsByMonth = Object.entries(monthlyData).map(([name, value]) => ({ name, value }));
+  const recentBookings = await prisma.booking.findMany({
+    where: { tutor: { userId: tutorId } },
+    take: 5,
+    orderBy: { createdAt: "desc" },
+    include: { student: { select: { name: true, email: true } } }
+  });
   return {
     totalBookings,
     completedBookings,
@@ -1806,7 +1945,10 @@ var getTutorStats = async (tutorId) => {
     averageRating: averageRating?.rating || 0,
     totalReviews,
     totalAvailability,
-    cancelledBookings
+    cancelledBookings,
+    bookingsByStatus,
+    bookingsByMonth,
+    recentBookings
   };
 };
 var getStudentStats = async (studentId) => {
@@ -1814,17 +1956,98 @@ var getStudentStats = async (studentId) => {
   const completedBookings = await prisma.booking.count({ where: { studentId, status: "COMPLETED" } });
   const upcomingBookings = await prisma.booking.count({ where: { studentId, status: "CONFIRMED" } });
   const cancelledBookings = await prisma.booking.count({ where: { studentId, status: "CANCELLED" } });
+  const sixMonthsAgo = /* @__PURE__ */ new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const recentBookingsData = await prisma.booking.findMany({
+    where: { studentId, createdAt: { gte: sixMonthsAgo } },
+    select: { createdAt: true }
+  });
+  const monthlyData = recentBookingsData.reduce((acc, booking) => {
+    const month = booking.createdAt.toLocaleString("default", { month: "short" });
+    acc[month] = (acc[month] || 0) + 1;
+    return acc;
+  }, {});
+  const bookingsByMonth = Object.entries(monthlyData).map(([name, value]) => ({ name, value }));
+  const bookingsByStatus = [
+    { name: "Completed", value: completedBookings },
+    { name: "Cancelled", value: cancelledBookings },
+    { name: "Confirmed", value: upcomingBookings }
+  ];
+  const recentBookings = await prisma.booking.findMany({
+    where: { studentId },
+    take: 5,
+    orderBy: { createdAt: "desc" },
+    include: { tutor: { include: { user: { select: { name: true } } } } }
+  });
   return {
     totalBookings,
     completedBookings,
     upcomingBookings,
-    cancelledBookings
+    cancelledBookings,
+    bookingsByStatus,
+    bookingsByMonth,
+    recentBookings
+  };
+};
+var getManagerStats = async () => {
+  const totalTutors = await prisma.user.count({ where: { role: "TUTOR" } });
+  const totalCategories = await prisma.category.count();
+  const totalUsers = await prisma.user.count();
+  const categories = await prisma.category.findMany({
+    include: { _count: { select: { tutors: true } } }
+  });
+  const categoryHealth = categories.map((c) => ({ name: c.name, value: c._count.tutors }));
+  const sixMonthsAgo = /* @__PURE__ */ new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const userGrowthData = await prisma.user.findMany({
+    where: { createdAt: { gte: sixMonthsAgo } },
+    select: { createdAt: true }
+  });
+  const monthlyUsers = userGrowthData.reduce((acc, user) => {
+    const month = user.createdAt.toLocaleString("default", { month: "short" });
+    acc[month] = (acc[month] || 0) + 1;
+    return acc;
+  }, {});
+  const userGrowth = Object.entries(monthlyUsers).map(([name, value]) => ({ name, value }));
+  return {
+    totalTutors,
+    totalCategories,
+    totalUsers,
+    categoryHealth,
+    userGrowth
+  };
+};
+var getModeratorStats = async () => {
+  const totalReviews = await prisma.review.count();
+  const totalBookings = await prisma.booking.count();
+  const bannedUsers = await prisma.user.count({ where: { isBanned: true } });
+  const bookingsByStatus = await prisma.booking.groupBy({
+    by: ["status"],
+    _count: true
+  });
+  const statusDistribution = bookingsByStatus.map((s) => ({ name: s.status, value: s._count }));
+  const recentReviews = await prisma.review.findMany({
+    take: 5,
+    orderBy: { createdAt: "desc" },
+    include: {
+      student: { select: { name: true } },
+      tutor: { include: { user: { select: { name: true } } } }
+    }
+  });
+  return {
+    totalReviews,
+    totalBookings,
+    bannedUsers,
+    statusDistribution,
+    recentReviews
   };
 };
 var StatisticService = {
   getAdminStats,
   getTutorStats,
-  getStudentStats
+  getStudentStats,
+  getManagerStats,
+  getModeratorStats
 };
 
 // src/modules/statistic/statistic.controller.ts
@@ -1854,10 +2077,28 @@ var getStudentStats2 = async (req, res) => {
     res.status(500).json({ success: false, message: error.message || "Failed to fetch student stats" });
   }
 };
+var getManagerStats2 = async (_req, res) => {
+  try {
+    const stats = await StatisticService.getManagerStats();
+    res.status(200).json({ success: true, data: stats });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || "Failed to fetch manager stats" });
+  }
+};
+var getModeratorStats2 = async (_req, res) => {
+  try {
+    const stats = await StatisticService.getModeratorStats();
+    res.status(200).json({ success: true, data: stats });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || "Failed to fetch moderator stats" });
+  }
+};
 var StatisticController = {
   getAdminStats: getAdminStats2,
   getTutorStats: getTutorStats2,
-  getStudentStats: getStudentStats2
+  getStudentStats: getStudentStats2,
+  getManagerStats: getManagerStats2,
+  getModeratorStats: getModeratorStats2
 };
 
 // src/modules/statistic/statistic.routes.ts
@@ -1865,7 +2106,128 @@ var router8 = Router5();
 router8.get("/admin", auth(Role.ADMIN), StatisticController.getAdminStats);
 router8.get("/tutor", auth(Role.TUTOR), StatisticController.getTutorStats);
 router8.get("/student", auth(Role.STUDENT), StatisticController.getStudentStats);
+router8.get("/manager", auth(Role.MANAGER), StatisticController.getManagerStats);
+router8.get("/moderator", auth(Role.MODERATOR), StatisticController.getModeratorStats);
 var StatisticsRoutes = router8;
+
+// src/modules/ai/ai.routes.ts
+import { Router as Router6 } from "express";
+
+// src/modules/ai/ai.service.ts
+import { GoogleGenerativeAI } from "@google/generative-ai";
+var genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+var getTutorDataForContext = async () => {
+  const tutors = await prisma.tutorProfile.findMany({
+    include: {
+      user: { select: { name: true } },
+      category: { select: { name: true } }
+    },
+    take: 20
+    // Limiting for context window
+  });
+  return tutors.map((t) => ({
+    id: t.id,
+    name: t.user.name,
+    category: t.category?.name,
+    subjects: t.subjects,
+    hourlyRate: t.hourlyRate,
+    rating: t.rating,
+    bio: t.bio.substring(0, 100) + "..."
+  }));
+};
+var chatWithAI = async (message, history = []) => {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const tutorsContext = await getTutorDataForContext();
+  const systemPrompt = `You are a helpful assistant for "Skill Bridge", a tutoring platform. 
+    Your goal is to help students find the best tutors for their needs.
+    Here is some information about our top tutors:
+    ${JSON.stringify(tutorsContext)}
+    
+    When suggesting tutors, mention their name, category, and hourly rate.
+    Be polite and professional. If you don't know something about a tutor not in the list, just say you can't find that specific detail right now.`;
+  const validHistory = (history || []).filter(
+    (item) => item && (item.role === "user" || item.role === "model") && item.parts && item.parts.length > 0 && item.parts[0].text
+  ).map((item) => ({
+    role: item.role === "user" ? "user" : "model",
+    parts: [{ text: String(item.parts[0].text) }]
+  }));
+  const chat2 = model.startChat({
+    history: [
+      { role: "user", parts: [{ text: systemPrompt }] },
+      { role: "model", parts: [{ text: "Understood. I am ready to help students find the perfect tutor on Skill Bridge." }] },
+      ...validHistory
+    ]
+  });
+  const result = await chat2.sendMessage(message);
+  const response = await result.response;
+  return response.text();
+};
+var smartSearch = async (query) => {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const prompt = `You are a search query interpreter for Skill Bridge.
+    User Query: "${query}"
+    
+    Based on this query, extract the following filters in JSON format:
+    - search (keyword for bio or subjects)
+    - category (one of Math, Science, Language, Music, Art, Programming, Marketing, Design, Other)
+    - maxPrice (number)
+    - minRating (number)
+    - location (string)
+    
+    If a filter is not mentioned, return null for that field.
+    Only return the JSON. No other text.`;
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+  try {
+    const cleanedText = text.replace(/```json|```/g, "").trim();
+    return JSON.parse(cleanedText);
+  } catch (error) {
+    console.error("Failed to parse AI search response:", text);
+    return { search: query };
+  }
+};
+var AIService = {
+  chatWithAI,
+  smartSearch
+};
+
+// src/modules/ai/ai.controller.ts
+var chat = async (req, res) => {
+  try {
+    const { message, history } = req.body;
+    if (!message) {
+      return res.status(400).json({ success: false, message: "Message is required" });
+    }
+    console.log("message from chat controller", message);
+    const reply = await AIService.chatWithAI(message, history);
+    console.log("reply from chat controller", reply);
+    res.status(200).json({ success: true, data: reply });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+var suggest = async (req, res) => {
+  try {
+    const { query } = req.body;
+    if (!query) {
+      return res.status(400).json({ success: false, message: "Query is required" });
+    }
+    const filters = await AIService.smartSearch(query);
+    res.status(200).json({ success: true, data: filters });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+var AIController = {
+  chat,
+  suggest
+};
+
+// src/modules/ai/ai.routes.ts
+var router9 = Router6();
+router9.post("/chat", AIController.chat);
+router9.post("/suggest", AIController.suggest);
+var AIRoutes = router9;
 
 // src/app.ts
 var app = express4();
@@ -1889,6 +2251,7 @@ app.use("/api/review", ReviewRoutes);
 app.use("/api/availability", AvailabilityRoutes);
 app.use("/api/user", UserRoutes);
 app.use("/api/statistic", StatisticsRoutes);
+app.use("/api/ai", AIRoutes);
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
