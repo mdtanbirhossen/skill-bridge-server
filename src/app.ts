@@ -9,6 +9,7 @@ import { ReviewRoutes } from "./modules/review/review.routes";
 import { AvailabilityRoutes } from "./modules/availability/availability.routes";
 import { UserRoutes } from "./modules/user/user.routes";
 import { StatisticsRoutes } from "./modules/statistic/statistic.routes";
+import { AIRoutes } from "./modules/ai/ai.routes";
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use("/api/review", ReviewRoutes);
 app.use("/api/availability", AvailabilityRoutes);
 app.use("/api/user", UserRoutes);
 app.use("/api/statistic", StatisticsRoutes);
+app.use("/api/ai", AIRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
